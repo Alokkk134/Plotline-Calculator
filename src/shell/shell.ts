@@ -63,9 +63,14 @@ function applySeo(id: CalculatorId): void {
   set('meta[property="og:url"]', 'content', canonicalUrl(p));
   set('meta[name="twitter:title"]', 'content', p.title);
   set('meta[name="twitter:description"]', 'content', p.description);
-  const ld = document.querySelectorAll('script[type="application/ld+json"]');
-  const data = jsonLd(p);
-  if (ld.length === data.length) ld.forEach((el, i) => (el.textContent = JSON.stringify(data[i])));
+  // Pages carry different numbers of JSON-LD blocks, so replace them all.
+  document.querySelectorAll('script[type="application/ld+json"]').forEach((el) => el.remove());
+  for (const obj of jsonLd(p)) {
+    const s = document.createElement('script');
+    s.type = 'application/ld+json';
+    s.textContent = JSON.stringify(obj);
+    document.head.append(s);
+  }
   const article = document.getElementById('seo');
   if (article && article.dataset.page !== id) {
     article.innerHTML = contentHtml(p);

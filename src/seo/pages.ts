@@ -56,7 +56,9 @@ export const PAGES: PageSeo[] = [
     id: 'graphing',
     path: '/',
     file: 'index.html',
-    title: 'Free Online Graphing Calculator – Plot Any Equation | Plotline',
+    // Brand first on the home page (like "Desmos | Beautiful free math.") so a
+    // search for "plotline" matches strongly; sub-pages lead with their keyword.
+    title: 'Plotline | Free Online Graphing Calculator',
     description:
       'Graph functions, circles, inequalities, polar and parametric equations instantly. Free online graphing calculator with sliders and examples. No sign-up.',
     h1: 'Free Online Graphing Calculator',
@@ -291,12 +293,24 @@ export function jsonLd(p: PageSeo): object[] {
   };
   const out: object[] = [app, faq];
   if (p.path === '/') {
+    // Site name + logo: what Google shows above the URL in results (like "Desmos").
     out.push({
       '@context': 'https://schema.org',
       '@type': 'WebSite',
       name: SITE_NAME,
+      alternateName: ['Plotline Calculator', 'Try Plotline', 'tryplotline'],
       url: `${SITE_URL}/`,
       description: 'Free online graphing, scientific, basic and matrix calculators.',
+      inLanguage: 'en',
+      publisher: { '@id': `${SITE_URL}/#organization` },
+    });
+    out.push({
+      '@context': 'https://schema.org',
+      '@type': 'Organization',
+      '@id': `${SITE_URL}/#organization`,
+      name: SITE_NAME,
+      url: `${SITE_URL}/`,
+      logo: { '@type': 'ImageObject', url: `${SITE_URL}/pwa-512x512.png`, width: 512, height: 512 },
     });
   } else {
     out.push({
@@ -321,6 +335,7 @@ export function headHtml(p: PageSeo): string {
     <meta name="description" content="${esc(p.description)}" />
     <link rel="canonical" href="${url}" />
     <meta name="robots" content="index, follow, max-image-preview:large" />
+    <meta name="application-name" content="${SITE_NAME}" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="${SITE_NAME}" />
     <meta property="og:title" content="${esc(p.title)}" />
