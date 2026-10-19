@@ -141,7 +141,7 @@ function mountCalculator(container: HTMLElement, config: CalcConfig): Calculator
   keypad.className = 'calc-keypad';
   keypadWrap.append(keypad);
 
-  // Examples take the history area: shown while history is empty, or on demand.
+  // Examples take the history area, only after the user taps "See examples".
   const examplesEl = document.createElement('div');
   examplesEl.hidden = true;
   root.append(historyEl, examplesEl, inputWrap, keypadWrap);
@@ -257,7 +257,7 @@ function mountCalculator(container: HTMLElement, config: CalcConfig): Calculator
     } else {
       history = [];
       renderHistory();
-      showExamples(true);
+      showExamples(false);
     }
     updatePreview();
   }
@@ -355,7 +355,7 @@ function mountCalculator(container: HTMLElement, config: CalcConfig): Calculator
     keypad.append(p);
   }
   refreshKeys();
-  showExamples(history.length === 0);
+  showExamples(false);
 
   // ---- events ----
   const onInput = (): void => updatePreview();
@@ -397,7 +397,7 @@ function mountCalculator(container: HTMLElement, config: CalcConfig): Calculator
       renderHistory();
       refreshKeys();
       updatePreview();
-      showExamples(history.length === 0);
+      showExamples(false);
     },
     resize(): void {
       historyEl.scrollTop = historyEl.scrollHeight;

@@ -11,14 +11,14 @@ export interface ExampleCard {
   onPick(): void;
 }
 
-/** "★ Examples" button; the caller decides what toggling does. */
+/** "★ See examples" button; the caller decides what toggling does. */
 export function examplesButton(): HTMLButtonElement {
   const b = document.createElement('button');
   b.type = 'button';
   b.className = 'ex-toggle';
-  b.innerHTML = '<span aria-hidden="true">★</span><span class="ex-toggle-lbl">Examples</span>';
+  b.innerHTML = '<span aria-hidden="true">★</span><span class="ex-toggle-lbl">See examples</span>';
   b.title = 'Show examples you can try with one click';
-  b.setAttribute('aria-label', 'Examples');
+  b.setAttribute('aria-label', 'See examples');
   // Don't steal focus from the calculator input.
   b.addEventListener('mousedown', (e) => e.preventDefault());
   return b;

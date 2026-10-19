@@ -114,7 +114,7 @@ export function mountMatrix(container: HTMLElement): CalculatorInstance {
   const exBtn = examplesButton();
   inputRow.append(exBtn, input);
   const keypad = el('div', 'mx-keypad');
-  // Examples take the history area: shown while history is empty, or on demand.
+  // Examples take the history area, only after the user taps "See examples".
   const examplesEl = el('div');
   examplesEl.hidden = true;
   main.append(historyEl, examplesEl, inputRow, keypad);
@@ -426,7 +426,7 @@ export function mountMatrix(container: HTMLElement): CalculatorInstance {
     renderHistory();
   }
   renderAll();
-  showExamples(history.length === 0);
+  showExamples(false);
 
   return {
     getState(): State {
@@ -443,7 +443,7 @@ export function mountMatrix(container: HTMLElement): CalculatorInstance {
       history = s.history;
       selected = -1;
       renderAll();
-      showExamples(history.length === 0);
+      showExamples(false);
     },
     destroy(): void {
       for (const c of cleanups) c();
