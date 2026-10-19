@@ -1,0 +1,77 @@
+.ex-toggle {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 34px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--bg-panel);
+  color: var(--accent-strong);
+  font-weight: 700;
+  font-size: 13px;
+  white-space: nowrap;
+}
+.ex-toggle:hover { background: var(--accent-soft); }
+.ex-toggle[aria-expanded='true'] { background: var(--accent); border-color: var(--accent); color: var(--accent-contrast); }
+.ex-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.ex-panel {
+  padding: 12px 14px;
+  overflow-y: auto;
+  min-height: 0;
+}
+.ex-panel[hidden] { display: none; }
+.ex-intro {
+  margin: 0 0 10px 2px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.ex-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 10px;
+}
+.ex-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  min-width: 0;
+  padding: 10px 12px;
+  text-align: left;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--bg-panel);
+  color: var(--text);
+  box-shadow: var(--shadow-sm);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.ex-card:hover { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.ex-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.ex-name { font-weight: 700; font-size: 13px; }
+.ex-math { max-width: 100%; overflow: hidden; font-size: 15px; color: var(--accent-strong); }
+.ex-hint { font-size: 12px; color: var(--text-muted); line-height: 1.35; }
+
+/* Phones: one horizontally scrolling row so the cards fit the small space. */
+@media (max-width: 720px) {
+  .ex-panel { padding: 8px 10px; }
+  .ex-intro { margin-bottom: 6px; font-size: 10.5px; }
+  .ex-grid {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    gap: 8px;
+    padding-bottom: 4px;
+    scrollbar-width: thin;
+  }
+  .ex-card { flex: 0 0 158px; scroll-snap-align: start; padding: 8px 10px; }
+  .ex-math { font-size: 14px; }
+  .ex-hint { font-size: 11.5px; }
+  .ex-toggle { padding: 0 10px; }
+  .ex-toggle-lbl { display: none; }
+}

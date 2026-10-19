@@ -3,6 +3,7 @@ import {
   ansKey, backspaceKey, clearKey, cmd, createCalculatorModule, enterKey, fn, ins, num, op,
 } from '../scientific/calc';
 import type { KeyDef } from '../scientific/calc';
+import { FOUR_FUNCTION_EXAMPLES } from './examples';
 
 const keys: (KeyDef | null)[] = [
   clearKey,
@@ -23,4 +24,5 @@ export const fourFunctionModule: CalculatorModule = createCalculatorModule({
   id: 'four-function',
   title: 'Four Function',
   panels: [{ cols: 4, className: 'calc-panel-num', keys }],
+  examples: FOUR_FUNCTION_EXAMPLES,
 });

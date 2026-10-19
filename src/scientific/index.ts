@@ -3,6 +3,7 @@ import {
   ansKey, backspaceKey, clearKey, cmd, createCalculatorModule, enterKey, fn, ins, num, op, special,
 } from './calc';
 import type { KeyDef, KeyPanel } from './calc';
+import { SCIENTIFIC_EXAMPLES } from './examples';
 
 const fnKeys: (KeyDef | null)[] = [
   { label: '2nd', title: 'Toggle inverse / alternate functions', kind: 'toggle', action: special('second') },
@@ -62,4 +63,5 @@ export const scientificModule: CalculatorModule = createCalculatorModule({
   id: 'scientific',
   title: 'Scientific',
   panels,
+  examples: SCIENTIFIC_EXAMPLES,
 });

@@ -213,7 +213,7 @@ button { font: inherit; cursor: pointer; }
   .install-lbl { display: none; }
   .install-btn { padding: 8px 9px; }
 }
-@media (max-width: 380px) {
+@media (max-width: 430px) {
   .calc-tab svg { display: none; }
 }
 

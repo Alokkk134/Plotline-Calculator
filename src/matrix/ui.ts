@@ -1,6 +1,8 @@
 import type { CalculatorInstance } from '../shell/types';
 import { MatrixError, Fraction, formatNum, parseNum, type Matrix, type Num } from './linalg';
 import { safeEvaluate, type EvalResult } from './expr';
+import { examplesButton, renderExamples } from '../shared/examples';
+import { MATRIX_EXAMPLES, fill, matrixLatex, type MatrixExample } from './examples';
 import './matrix.css';
 
 const MAX_DIM = 10;
@@ -109,9 +111,13 @@ export function mountMatrix(container: HTMLElement): CalculatorInstance {
   input.autocomplete = 'off';
   input.spellcheck = false;
   input.setAttribute('aria-label', 'Matrix expression');
-  inputRow.append(input);
+  const exBtn = examplesButton();
+  inputRow.append(exBtn, input);
   const keypad = el('div', 'mx-keypad');
-  main.append(historyEl, inputRow, keypad);
+  // Examples take the history area: shown while history is empty, or on demand.
+  const examplesEl = el('div');
+  examplesEl.hidden = true;
+  main.append(historyEl, examplesEl, inputRow, keypad);
   root.append(side, main);
   container.replaceChildren(root);
 
@@ -140,7 +146,7 @@ export function mountMatrix(container: HTMLElement): CalculatorInstance {
   function renderHistory(): void {
     historyEl.replaceChildren();
     if (!history.length) {
-      historyEl.append(el('p', 'mx-empty', 'Results appear here. Try A*A or det(A).'));
+      historyEl.append(el('p', 'mx-empty', 'Results appear here. Try A*A or det(A), or tap ★ for examples.'));
       return;
     }
     history.forEach((h, idx) => {
@@ -311,6 +317,7 @@ export function mountMatrix(container: HTMLElement): CalculatorInstance {
     if (!text) return;
     history.push({ input: text });
     if (history.length > MAX_HISTORY) history.shift();
+    showExamples(false);
     input.value = '';
     selected = -1;
     renderHistory();
@@ -347,6 +354,55 @@ export function mountMatrix(container: HTMLElement): CalculatorInstance {
     }
   }
 
+  // ---- examples ---------------------------------------------------------
+  let examplesOpen = false;
+  function showExamples(open: boolean): void {
+    examplesOpen = open;
+    examplesEl.hidden = !open;
+    historyEl.hidden = open;
+    exBtn.setAttribute('aria-expanded', String(open));
+  }
+  const sameRows = (a: string[][], b: string[][]): boolean =>
+    a.length === b.length && a.every((r, i) => r.length === b[i]!.length && r.every((c, j) => c.trim() === b[i]![j]!.trim()));
+
+  /** Give each example matrix a letter: reuse an identical matrix, else add a new one. Never overwrites. */
+  function runExample(ex: MatrixExample): void {
+    const names: string[] = [];
+    const added: MatrixModel[] = [];
+    for (const rows of ex.matrices) {
+      const existing = [...matrices, ...added].find((m) => sameRows(m.rows, rows));
+      if (existing) {
+        names.push(existing.name);
+        continue;
+      }
+      const name = LETTERS.find((l) => ![...matrices, ...added].some((m) => m.name === l));
+      if (!name || matrices.length + added.length >= MAX_MATRICES) {
+        const intro = examplesEl.querySelector('.ex-intro');
+        if (intro) intro.textContent = 'No free matrix letters left. Delete a matrix, then try again.';
+        return;
+      }
+      added.push({ name, rows: rows.map((r) => r.slice()) });
+      names.push(name);
+    }
+    matrices.push(...added);
+    history.push({ input: fill(ex.expr, names) });
+    if (history.length > MAX_HISTORY) history.shift();
+    selected = -1;
+    showExamples(false);
+    renderAll();
+  }
+  renderExamples(
+    examplesEl,
+    'New here? Tap an example: it adds the matrices it needs (your own matrices stay untouched).',
+    MATRIX_EXAMPLES.map((ex) => ({
+      name: ex.name,
+      hint: ex.hint,
+      latex: fill(ex.latex, ex.matrices.map(matrixLatex)),
+      onPick: () => runExample(ex),
+    })),
+  );
+  exBtn.addEventListener('click', () => showExamples(!examplesOpen));
+
   addBtn.addEventListener('click', () => {
     const name = nextName();
     if (!name) return;
@@ -370,6 +426,7 @@ export function mountMatrix(container: HTMLElement): CalculatorInstance {
     renderHistory();
   }
   renderAll();
+  showExamples(history.length === 0);
 
   return {
     getState(): State {
@@ -386,6 +443,7 @@ export function mountMatrix(container: HTMLElement): CalculatorInstance {
       history = s.history;
       selected = -1;
       renderAll();
+      showExamples(history.length === 0);
     },
     destroy(): void {
       for (const c of cleanups) c();

@@ -3,6 +3,7 @@
 import { convertLatexToMarkup } from 'mathlive';
 import type { MathfieldElement } from 'mathlive';
 import { createMathInput } from '../shared/mathfield';
+import { examplesButton, renderExamples } from '../shared/examples';
 import { evaluateLatex, formatNumber } from '../math';
 import type { AngleMode } from '../math';
 import type { CalculatorInstance, CalculatorModule, CalculatorId } from '../shell/types';
@@ -33,10 +34,22 @@ export interface KeyPanel {
   keys: (KeyDef | null)[];
 }
 
+/** A one-click example: evaluated and added to history when picked. */
+export interface CalcExample {
+  name: string;
+  hint: string;
+  latex: string;
+  /** Switch the angle mode first (trig examples). */
+  angleMode?: AngleMode;
+  /** Expected result; checked by tests, not shown in the UI. */
+  expect: number;
+}
+
 export interface CalcConfig {
   id: CalculatorId;
   title: string;
   panels: KeyPanel[];
+  examples?: CalcExample[];
 }
 
 // ---- key helpers -------------------------------------------------------
@@ -117,6 +130,8 @@ function mountCalculator(container: HTMLElement, config: CalcConfig): Calculator
   errorEl.setAttribute('role', 'alert');
   const inputRow = document.createElement('div');
   inputRow.className = 'calc-input-row';
+  const exBtn = config.examples?.length ? examplesButton() : null;
+  if (exBtn) inputRow.append(exBtn);
   inputRow.append(mf, preview);
   inputWrap.append(inputRow, errorEl);
 
@@ -126,7 +141,10 @@ function mountCalculator(container: HTMLElement, config: CalcConfig): Calculator
   keypad.className = 'calc-keypad';
   keypadWrap.append(keypad);
 
-  root.append(historyEl, inputWrap, keypadWrap);
+  // Examples take the history area: shown while history is empty, or on demand.
+  const examplesEl = document.createElement('div');
+  examplesEl.hidden = true;
+  root.append(historyEl, examplesEl, inputWrap, keypadWrap);
   container.replaceChildren(root);
 
   // ---- evaluation ----
@@ -173,6 +191,49 @@ function mountCalculator(container: HTMLElement, config: CalcConfig): Calculator
     historyEl.scrollTop = historyEl.scrollHeight;
   }
 
+  let examplesOpen = false;
+  function showExamples(open: boolean): void {
+    examplesOpen = open && !!exBtn;
+    examplesEl.hidden = !examplesOpen;
+    historyEl.hidden = examplesOpen;
+    exBtn?.setAttribute('aria-expanded', String(examplesOpen));
+    // Phones hide the keypad while examples are open (see calc.css).
+    root.classList.toggle('calc-ex-open', examplesOpen);
+  }
+  // On phones, tapping the input means "I want to type": bring the keypad back.
+  inputWrap.addEventListener('pointerdown', (e) => {
+    if (examplesOpen && e.target !== exBtn && !exBtn?.contains(e.target as Node) && window.matchMedia('(max-width: 720px)').matches) {
+      showExamples(false);
+    }
+  });
+  function runExample(ex: CalcExample): void {
+    if (ex.angleMode) {
+      angleMode = ex.angleMode;
+      refreshKeys();
+    }
+    const r = evaluate(ex.latex);
+    if (r.ok) history.push({ latex: ex.latex, value: r.value });
+    mf.value = '';
+    errorEl.textContent = r.ok ? '' : r.error;
+    preview.textContent = '';
+    showExamples(false);
+    renderHistory();
+    mf.focus();
+  }
+  if (config.examples?.length) {
+    renderExamples(
+      examplesEl,
+      'New here? Tap an example to see how it works, then edit it.',
+      config.examples.map((ex) => ({
+        name: ex.name,
+        hint: ex.hint,
+        latex: ex.latex,
+        onPick: () => runExample(ex),
+      })),
+    );
+    exBtn!.addEventListener('click', () => showExamples(!examplesOpen));
+  }
+
   function submit(): void {
     const latex = mf.value.trim();
     if (!latex) return;
@@ -182,6 +243,7 @@ function mountCalculator(container: HTMLElement, config: CalcConfig): Calculator
       return;
     }
     history.push({ latex, value: r.value });
+    showExamples(false);
     mf.value = '';
     preview.textContent = '';
     errorEl.textContent = '';
@@ -195,6 +257,7 @@ function mountCalculator(container: HTMLElement, config: CalcConfig): Calculator
     } else {
       history = [];
       renderHistory();
+      showExamples(true);
     }
     updatePreview();
   }
@@ -292,6 +355,7 @@ function mountCalculator(container: HTMLElement, config: CalcConfig): Calculator
     keypad.append(p);
   }
   refreshKeys();
+  showExamples(history.length === 0);
 
   // ---- events ----
   const onInput = (): void => updatePreview();
@@ -333,6 +397,7 @@ function mountCalculator(container: HTMLElement, config: CalcConfig): Calculator
       renderHistory();
       refreshKeys();
       updatePreview();
+      showExamples(history.length === 0);
     },
     resize(): void {
       historyEl.scrollTop = historyEl.scrollHeight;

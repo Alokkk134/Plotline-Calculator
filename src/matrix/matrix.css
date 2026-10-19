@@ -77,9 +77,11 @@
 .mx-bracket::after { right: 0; border-left: 0; }
 .mx-cell-out { font-variant-numeric: tabular-nums; }
 
-.mx-input-row { padding: 8px 16px; border-top: 1px solid var(--border); }
+.mx-input-row { display: flex; align-items: center; gap: 8px; padding: 8px 16px; border-top: 1px solid var(--border); }
+.mx-main > .ex-panel { flex: 1; }
+.mx-history[hidden] { display: none; }
 .mx-input {
-  width: 100%; font: inherit; font-size: 16px; padding: 10px 12px;
+  flex: 1; min-width: 0; width: 100%; font: inherit; font-size: 16px; padding: 10px 12px;
   border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg); color: var(--text);
   font-family: ui-monospace, Consolas, monospace;
 }

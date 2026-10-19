@@ -1,5 +1,7 @@
 .calc { height: 100%; display: flex; flex-direction: column; background: var(--bg); min-height: 0; }
 .calc-history { flex: 1 1 0; min-height: 60px; overflow-y: auto; padding: 8px 12px; display: flex; flex-direction: column; gap: 2px; width: 100%; max-width: 900px; margin: 0 auto; }
+.calc > .ex-panel { flex: 1 1 0; width: 100%; max-width: 900px; margin: 0 auto; }
+.calc-history[hidden] { display: none; }
 .calc-history::before { content: ""; flex: 1 1 auto; }
 .calc-history-row { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; border: 0; background: transparent; padding: 8px 12px; border-radius: var(--radius); text-align: left; color: var(--text-muted); font-size: 17px; flex: none; }
 .calc-history-row:hover { background: var(--bg-panel); color: var(--text); }
@@ -42,7 +44,11 @@
   .calc-key { font-size: 16px; }
   /* Key rows shrink on short phones so history and the input stay visible.
      Height left for 9 rows = screen − header (104) − input (~64) − history (80) − padding/gaps (~88). */
-  .calc-history { min-height: 80px; }
+  .calc-history, .calc > .ex-panel { min-height: 80px; }
+  /* While examples are open the keypad steps aside so the cards get room. */
+  .calc-ex-open .calc-keypad-wrap { display: none; }
+  .calc-ex-open > .ex-panel .ex-grid { display: grid; grid-template-columns: 1fr 1fr; overflow: visible; }
+  .calc-ex-open > .ex-panel .ex-card { flex: none; }
   .calc-keypad-wrap { flex: 0 0 auto; }
   .calc-panel {
     --row: clamp(34px, calc((100vh - 336px) / 9), 52px);
