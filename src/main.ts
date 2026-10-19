@@ -2,6 +2,7 @@
 import 'mathlive/static.css';
 import './styles/base.css';
 import { inject } from '@vercel/analytics';
+import { injectSpeedInsights } from '@vercel/speed-insights';
 import { createShell } from './shell/shell';
 
 createShell(document.getElementById('app')!);
@@ -9,3 +10,7 @@ createShell(document.getElementById('app')!);
 // Vercel Web Analytics: counts visits and page views, including calculator
 // switches (it follows pushState). In development it only logs, nothing is sent.
 inject({ mode: import.meta.env.DEV ? 'development' : 'production' });
+
+// Vercel Speed Insights: monitors real user performance metrics (Core Web Vitals).
+// Automatically detects development mode and only logs without sending data.
+injectSpeedInsights();
