@@ -2,6 +2,7 @@
 // Routes: #/graphing, #/scientific, #/four-function, #/matrix.
 // Anything after "?" in the hash (e.g. "#/graphing?s=...") belongs to the storage module.
 import { mountStorageUI } from '../storage';
+import { mountInstallButton, registerServiceWorker } from './install';
 import { graphingModule } from '../graphing';
 import { scientificModule } from '../scientific';
 import { fourFunctionModule } from '../fourfunction';
@@ -43,6 +44,7 @@ export function createShell(root: HTMLElement): void {
     <header class="topbar">
       <a class="brand" href="#/graphing" aria-label="Plotline home">${LOGO}<span class="brand-name">Plotline</span></a>
       <nav class="calc-tabs" aria-label="Calculators"></nav>
+      <div class="install-slot"></div>
       <div class="storage-slot"></div>
     </header>
     <main class="calc-host"></main>`;
@@ -86,6 +88,9 @@ export function createShell(root: HTMLElement): void {
   mount(routeFromHash());
   window.addEventListener('hashchange', () => mount(routeFromHash()));
   window.addEventListener('resize', () => active?.resize?.());
+
+  mountInstallButton(root.querySelector<HTMLElement>('.install-slot')!);
+  registerServiceWorker();
 
   mountStorageUI(slot, {
     getActive: () => ({ id: activeId!, instance: active! }),

@@ -120,6 +120,54 @@ button { font: inherit; cursor: pointer; }
 
 .calc-host { flex: 1; min-height: 0; position: relative; }
 
+/* ---- Install app ---- */
+.install-slot { position: relative; display: flex; align-items: center; margin-left: auto; }
+.install-slot + .storage-slot { margin-left: 0; }
+.install-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+  font-weight: 700;
+  font-size: 13px;
+  white-space: nowrap;
+}
+.install-btn:hover { background: #dedaff; }
+.install-btn[hidden] { display: none; }
+.install-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.install-help {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: min(320px, calc(100vw - 16px));
+  padding: 14px 16px;
+  background: var(--bg-panel);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  z-index: 70;
+  font-size: 13.5px;
+  line-height: 1.45;
+}
+.install-help[hidden] { display: none; }
+.install-help ol { margin: 8px 0 12px; padding-left: 20px; }
+.install-help li { margin: 4px 0; }
+.install-ico { display: inline-flex; vertical-align: -4px; color: var(--accent-strong); }
+.install-help-close {
+  width: 100%;
+  padding: 8px;
+  border: none;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--accent-contrast);
+  font-weight: 700;
+}
+
 .tab-short { display: none; }
 
 @media (max-width: 1000px) {
@@ -137,6 +185,8 @@ button { font: inherit; cursor: pointer; }
     padding: 0 10px 8px;
   }
   .brand { order: 0; height: 52px; }
+  .install-slot { order: 2; height: 52px; margin-left: 0; }
+  .install-help { position: fixed; top: calc(var(--topbar-h) + 6px); left: 8px; right: 8px; width: auto; }
   .topbar .storage-slot {
     order: 1;
     flex: 1 1 0;
@@ -144,7 +194,7 @@ button { font: inherit; cursor: pointer; }
     height: 52px;
   }
   .calc-tabs {
-    order: 2;
+    order: 3;
     flex: 1 1 100%;
     overflow: visible;
   }
@@ -160,6 +210,8 @@ button { font: inherit; cursor: pointer; }
   .calc-tab svg { width: 15px; height: 15px; }
   .tab-long { display: none; }
   .tab-short { display: inline; }
+  .install-lbl { display: none; }
+  .install-btn { padding: 8px 9px; }
 }
 @media (max-width: 380px) {
   .calc-tab svg { display: none; }
