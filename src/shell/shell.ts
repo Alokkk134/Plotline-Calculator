@@ -127,8 +127,10 @@ export function createShell(root: HTMLElement): void {
   /** Switch calculator and update the address bar (no page reload). */
   const navigate = (id: CalculatorId): void => {
     const path = pathFor(id);
-    if (location.pathname !== path || location.hash) history.pushState(null, '', path);
+    // Mount first so the new <title> is in place when the URL changes:
+    // Google Analytics records a page view on pushState and reads the title then.
     mount(id);
+    if (location.pathname !== path || location.hash) history.pushState(null, '', path);
   };
   // Internal links (tabs, logo, "More free calculators") switch without reloading.
   document.addEventListener('click', (e) => {

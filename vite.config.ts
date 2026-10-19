@@ -47,8 +47,41 @@ function seoPages(): Plugin {
   };
 }
 
+/** Google Analytics 4 measurement ID for tryplotline.xyz. */
+const GA_ID = 'G-F56XZ7LDGV';
+
+/**
+ * Adds the Google tag right after <head> in production builds only, so local
+ * development doesn't count as visits. Every pre-rendered page gets it because
+ * they are all made from the built index.html.
+ */
+function googleAnalytics(): Plugin {
+  return {
+    name: 'plotline-google-analytics',
+    apply: 'build',
+    transformIndexHtml: {
+      order: 'pre',
+      handler: (html) =>
+        html.replace(
+          '<head>',
+          `<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=${GA_ID}"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', '${GA_ID}');
+    </script>`,
+        ),
+    },
+  };
+}
+
 export default defineConfig({
   plugins: [
+    googleAnalytics(),
     seoPages(),
     // Makes the app installable (Chrome "Install", Android "Add to Home screen")
     // and usable offline: every built file is precached by the service worker.
