@@ -1,0 +1,502 @@
+.gr-root {
+  --gr-panel-w: 370px;
+  --gr-panel-h: 45%;
+  position: absolute;
+  inset: 0;
+  display: flex;
+  background: var(--bg);
+  overflow: hidden;
+}
+
+/* ---- panel ---- */
+.gr-panel {
+  flex: none;
+  width: var(--gr-panel-w);
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  border-right: 1px solid var(--border);
+  min-width: 0;
+  position: relative;
+}
+.gr-collapsed .gr-panel { display: none; }
+.gr-collapsed .gr-handle { display: none; }
+
+.gr-panel-header {
+  flex: none;
+  height: 46px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 10px 0 16px;
+}
+.gr-panel-title {
+  margin-right: auto;
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  color: var(--text);
+}
+.gr-icon-btn {
+  width: 32px;
+  height: 32px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 20px;
+  line-height: 1;
+}
+.gr-icon-btn:hover { background: var(--bg-panel); border-color: var(--border); color: var(--accent-strong); }
+
+.gr-handle {
+  flex: none;
+  width: 6px;
+  margin-left: -3px;
+  margin-right: -3px;
+  z-index: 5;
+  cursor: col-resize;
+  touch-action: none;
+  position: relative;
+}
+.gr-handle:hover, .gr-handle.dragging, .gr-handle:focus-visible {
+  background: rgba(91, 79, 224, 0.35);
+  outline: none;
+}
+
+.gr-graph {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  background: var(--graph-bg);
+  overflow: hidden;
+}
+
+.gr-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.gr-overlay { touch-action: none; cursor: grab; }
+
+/* Zoom controls: one floating toolbar. */
+.gr-zoom-buttons {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  display: flex;
+  flex-direction: column;
+  padding: 4px;
+  gap: 2px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  z-index: 3;
+}
+.gr-zoom-btn {
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--text);
+}
+.gr-zoom-btn:hover { background: var(--accent-soft); color: var(--accent-strong); }
+
+.gr-expand {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  z-index: 3;
+  height: 36px;
+  padding: 0 14px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--bg-panel);
+  color: var(--text);
+  box-shadow: var(--shadow);
+  font-size: 20px;
+  line-height: 1;
+}
+.gr-expand[hidden] { display: none; }
+
+/* ---- expression list: each line is a card ---- */
+.gr-list-wrap {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+.gr-rows {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 2px 12px 80px;
+}
+
+.gr-row {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  min-height: 54px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.gr-row.gr-active {
+  border-color: var(--row-color, var(--accent));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--row-color, var(--accent)) 18%, transparent);
+}
+
+.gr-gutter {
+  flex: none;
+  width: 44px;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.gr-num { display: none; }
+
+/* Color swatch: a rounded square with a check when the curve is shown. */
+.gr-toggle {
+  position: relative;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border-radius: 7px;
+  border: 2px solid var(--border);
+  background: var(--bg-soft);
+}
+.gr-row.gr-graphable .gr-toggle {
+  border-color: var(--row-color);
+  background: var(--row-color);
+}
+.gr-row.gr-graphable .gr-toggle::after {
+  content: '';
+  position: absolute;
+  left: 6px;
+  top: 2px;
+  width: 5px;
+  height: 10px;
+  border: solid #fff;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+.gr-row.gr-graphable.gr-hidden .gr-toggle { background: transparent; }
+.gr-row.gr-graphable.gr-hidden .gr-toggle::after { display: none; }
+.gr-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.gr-body { flex: 1; min-width: 0; padding: 6px 30px 6px 0; }
+.gr-line { display: flex; align-items: center; gap: 8px; min-height: 40px; }
+
+math-field.gr-mf {
+  flex: 1;
+  min-width: 0;
+  display: block;
+  font-size: 20px;
+  border: none;
+  outline: none;
+  background: transparent;
+  padding: 2px 0;
+  color: var(--text);
+  --text-font-family: var(--font);
+  --caret-color: var(--accent);
+  --selection-background-color: var(--accent-soft);
+}
+math-field.gr-mf:focus, math-field.gr-mf:focus-within { outline: none; }
+math-field.gr-mf::part(virtual-keyboard-toggle),
+math-field.gr-mf::part(menu-toggle) { display: none; }
+.gr-row.gr-hidden math-field.gr-mf { opacity: 0.55; }
+
+.gr-fb {
+  flex: none;
+  max-width: 45%;
+  padding: 2px 10px;
+  border-radius: 999px;
+  text-align: right;
+  color: var(--accent-strong);
+  font-size: 15px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.gr-fb:not(:empty) { background: var(--accent-soft); }
+.gr-fb-error { color: var(--danger); }
+.gr-fb-error:not(:empty) { background: #fdecec; }
+.gr-warn { cursor: help; font-size: 15px; }
+
+.gr-del {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 18px;
+  line-height: 1;
+  opacity: 0;
+}
+.gr-row:hover .gr-del, .gr-del:focus-visible { opacity: 1; }
+.gr-del:hover { background: #fdecec; color: var(--danger); }
+@media (hover: none) { .gr-del { opacity: 0.6; } }
+
+.gr-hint {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 0 4px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.gr-hint[hidden], .gr-slider[hidden] { display: none; }
+.gr-hint-btn {
+  min-width: 28px;
+  padding: 2px 10px;
+  border: 1px dashed var(--accent);
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+  font-style: italic;
+  font-weight: 600;
+}
+.gr-hint-btn:hover { background: var(--accent); color: var(--accent-contrast); border-style: solid; }
+
+/* ---- slider ---- */
+.gr-slider { padding: 2px 0 2px; }
+.gr-slider-top { display: flex; align-items: center; gap: 8px; }
+.gr-slider-bottom { display: flex; align-items: center; gap: 8px; margin-top: 2px; }
+.gr-range { flex: 1; min-width: 0; accent-color: var(--row-color, var(--accent)); }
+.gr-num-in {
+  width: 52px;
+  padding: 2px 4px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-muted);
+  font: inherit;
+  font-size: 12px;
+  text-align: center;
+}
+.gr-num-in:hover, .gr-num-in:focus { border-color: var(--border); background: var(--bg); outline: none; color: var(--text); }
+.gr-step-in { width: 44px; }
+.gr-step-lbl { font-size: 11px; color: var(--text-muted); }
+.gr-play {
+  width: 30px;
+  height: 24px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--bg-soft);
+  color: var(--accent-strong);
+  font-size: 10px;
+  line-height: 1;
+}
+.gr-play:hover { background: var(--accent-soft); }
+.gr-play.gr-playing { border-color: var(--row-color, var(--accent)); background: var(--accent-soft); }
+
+/* ---- docked keypad ---- */
+.gr-outer { position: absolute; inset: 0; display: flex; flex-direction: column; }
+.gr-outer > .gr-root { position: relative; inset: auto; flex: 1; min-height: 0; }
+
+.gr-keypad {
+  flex: none;
+  background: var(--bg-soft);
+  border-top: 1px solid var(--border);
+  user-select: none;
+}
+.gr-kp-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 12px;
+  background: var(--bg-panel);
+  border-bottom: 1px solid var(--border);
+}
+.gr-kp-tabs {
+  display: flex;
+  gap: 2px;
+  flex: none;
+  padding: 3px;
+  background: var(--bg-soft);
+  border-radius: 999px;
+}
+.gr-kp-tab {
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  border-radius: 999px;
+  padding: 5px 14px;
+  font-weight: 600;
+  font-size: 13px;
+}
+.gr-kp-tab:hover { color: var(--text); }
+.gr-kp-tab.on { background: var(--bg-panel); color: var(--accent-strong); box-shadow: var(--shadow-sm), 0 0 0 1px var(--border); }
+.gr-kp-tip {
+  flex: 1;
+  min-width: 0;
+  color: var(--text-muted);
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.gr-kp-hide {
+  flex: none;
+  margin-left: auto;
+  border: 1px solid var(--border);
+  background: var(--key-bg);
+  border-radius: 999px;
+  padding: 5px 12px;
+  color: var(--text);
+  font-weight: 600;
+  font-size: 13px;
+}
+.gr-kp-hide:hover { background: var(--key-bg-hover); }
+.gr-kp-closed .gr-kp-body { display: none; }
+.gr-kp-closed .gr-kp-tip { visibility: hidden; }
+
+.gr-kp-body { padding: 10px 12px 12px; max-height: 42vh; overflow-y: auto; }
+.gr-kp-pane[hidden] { display: none; }
+.gr-kp-groups {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.gr-kp-group { flex: 1 1 200px; max-width: 360px; min-width: 0; }
+.gr-kp-navgroup { flex: 0 1 150px; }
+.gr-kp-heading {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin: 0 0 6px 2px;
+}
+.gr-kp-grid { display: grid; gap: 6px; }
+.gr-key {
+  height: 40px;
+  padding: 0 2px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--key-bg);
+  color: var(--text);
+  font-size: 16px;
+  font-weight: 500;
+  box-shadow: 0 1px 0 rgba(30, 27, 58, 0.05);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: background 0.12s, border-color 0.12s, transform 0.06s;
+}
+.gr-key:hover { background: var(--key-bg-hover); border-color: #cfcaf0; }
+.gr-key:active { transform: translateY(1px) scale(0.98); }
+.gr-key.num { font-weight: 600; }
+.gr-key.op { background: var(--accent-soft); color: var(--accent-strong); border-color: transparent; font-weight: 700; }
+.gr-key.ctl { background: #e9e7f3; border-color: transparent; color: var(--text); }
+.gr-key.accent {
+  background: linear-gradient(135deg, #6d5ef5, var(--accent-strong));
+  border-color: transparent;
+  color: var(--accent-contrast);
+  font-size: 14px;
+  font-weight: 700;
+}
+.gr-key.link { color: var(--accent-strong); font-size: 13px; font-weight: 700; border-style: dashed; }
+
+.gr-ex-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 10px;
+}
+.gr-ex {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  text-align: left;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--key-bg);
+  color: var(--text);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.gr-ex:hover { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.gr-ex-name { font-weight: 700; font-size: 13px; }
+.gr-ex-math { font-size: 15px; max-width: 100%; overflow: hidden; color: var(--accent-strong); }
+.gr-ex-hint { font-size: 12px; color: var(--text-muted); }
+
+/* ---- narrow screens: graph on top, list below ---- */
+@media (max-width: 699px) {
+  .gr-root { flex-direction: column-reverse; }
+  .gr-panel {
+    width: 100%;
+    height: var(--gr-panel-h);
+    border-right: none;
+    border-top: 1px solid var(--border);
+  }
+  .gr-handle {
+    width: 100%;
+    height: 10px;
+    margin: -5px 0;
+    cursor: row-resize;
+  }
+  .gr-graph { flex: 1; }
+  .gr-collapsed .gr-panel { display: none; }
+  .gr-root { --gr-panel-h: 42%; }
+  .gr-zoom-buttons { top: 10px; right: 10px; }
+  .gr-rows { padding: 2px 8px 60px; gap: 6px; }
+  .gr-kp-tip { display: none; }
+  .gr-kp-bar { gap: 4px; padding: 5px 6px; }
+  .gr-kp-tabs { gap: 0; min-width: 0; overflow-x: auto; scrollbar-width: none; }
+  .gr-kp-tab { padding: 6px 10px; font-size: 12.5px; white-space: nowrap; }
+  .gr-kp-hide { padding: 6px 11px; font-size: 14px; }
+  .gr-kp-hide .kp-long { display: none; }
+  .gr-kp-body { max-height: 46vh; padding: 6px 6px 8px; }
+
+  /* Two key groups per row; wide groups and the edit row span both. */
+  .gr-kp-groups { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 6px; }
+  .gr-kp-group { max-width: none; min-width: 0; }
+  .gr-kp-wide, .gr-kp-navgroup { grid-column: 1 / -1; }
+  /* Keep ⌫ and "new row" reachable even when the keys above scroll. */
+  .gr-kp-navgroup {
+    position: sticky;
+    bottom: -8px;
+    margin: 0 -6px -8px;
+    padding: 6px 6px 8px;
+    background: var(--bg-soft);
+    border-top: 1px solid var(--border);
+  }
+  .gr-kp-navgroup .gr-kp-heading { display: none; }
+  .gr-kp-wide .gr-kp-grid { grid-template-columns: repeat(5, minmax(0, 1fr)) !important; }
+  .gr-kp-navgroup .gr-kp-grid { grid-template-columns: repeat(6, minmax(0, 1fr)) !important; }
+  .gr-kp-heading { margin-bottom: 4px; font-size: 10px; }
+  .gr-kp-grid { gap: 5px; }
+  .gr-key { height: 40px; font-size: 15px; border-radius: 11px; }
+  .gr-ex-grid { grid-template-columns: 1fr 1fr; gap: 6px; }
+  .gr-ex { padding: 7px 9px; }
+  .gr-ex-math { font-size: 13px; }
+
+  /* Bigger touch targets in the expression list. */
+  .gr-del { opacity: 0.6; width: 32px; height: 32px; top: 4px; right: 4px; }
+  .gr-panel-header { height: 40px; }
+}
