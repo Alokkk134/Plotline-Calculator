@@ -11,6 +11,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@vercel/analytics": "^1.4.1",
     "mathlive": "^0.111.1"
   },
   "devDependencies": {
