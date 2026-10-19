@@ -1,0 +1,372 @@
+// Search/AI-facing content for each calculator page. Used at build time
+// (vite.config.ts writes it into each page's HTML so crawlers and AI bots can
+// read it without running JavaScript) and at runtime (the shell swaps titles
+// and content when the user switches calculators). Plain strings only: this
+// file must not import browser-only code.
+
+export const SITE_URL = 'https://tryplotline.xyz';
+export const SITE_NAME = 'Plotline';
+export const OG_IMAGE = `${SITE_URL}/og-image.png`;
+
+export type PageId = 'graphing' | 'scientific' | 'four-function' | 'matrix';
+
+export interface FaqItem {
+  q: string;
+  /** Plain text answer (also used in FAQPage structured data). */
+  a: string;
+}
+
+export interface PageSeo {
+  id: PageId;
+  /** URL path, e.g. "/scientific-calculator". "/" is the graphing calculator. */
+  path: string;
+  /** Built file name in dist/ (served with clean URLs on Vercel). */
+  file: string;
+  /** <title>: 50–60 characters, main keyword first. */
+  title: string;
+  /** Meta description: ~150 characters, says what you can do. */
+  description: string;
+  h1: string;
+  /** One-sentence direct answer (what AI answers and featured snippets quote). */
+  lead: string;
+  /** Breadcrumb / short label. */
+  label: string;
+  /** Feature list for structured data and the page. */
+  features: string[];
+  /** How-to steps. */
+  steps: string[];
+  /** Example inputs shown on the page. */
+  examples: { input: string; result: string }[];
+  faq: FaqItem[];
+}
+
+const COMMON_FAQ: FaqItem[] = [
+  {
+    q: 'Is Plotline free?',
+    a: 'Yes. Plotline is completely free, needs no account or sign-up, and has no ads inside the calculators.',
+  },
+  {
+    q: 'Does Plotline work offline and on phones?',
+    a: 'Yes. Plotline works in any modern browser on phones, tablets, Chromebooks and computers. You can install it as an app from Chrome or Safari, and after the first visit it also works offline.',
+  },
+];
+
+export const PAGES: PageSeo[] = [
+  {
+    id: 'graphing',
+    path: '/',
+    file: 'index.html',
+    title: 'Free Online Graphing Calculator – Plot Any Equation | Plotline',
+    description:
+      'Graph functions, circles, inequalities, polar and parametric equations instantly. Free online graphing calculator with sliders and examples. No sign-up.',
+    h1: 'Free Online Graphing Calculator',
+    lead:
+      'Plotline is a free online graphing calculator: type an equation such as y = x² or x² + y² = 25 and it is plotted instantly, with sliders, zoom and one-click examples.',
+    label: 'Graphing Calculator',
+    features: [
+      'Plot y = f(x), x = f(y), circles and any implicit equation',
+      'Shade inequalities such as y > x² − 3',
+      'Polar (r = 3 sin 4θ) and parametric curves',
+      'Sliders for variables, with play/animate',
+      'Trace points, pan and zoom, reset view',
+      'Save graphs and share them with a link',
+    ],
+    steps: [
+      'Type an equation in the first row, for example y = 2x + 1. The graph appears as you type.',
+      'Press Enter to add another equation; each one gets its own color.',
+      'Use a letter such as a in y = a·x² and tap "add slider" to animate it.',
+      'Drag to move the graph, scroll or pinch to zoom, and tap the crosshair to reset the view.',
+      'Open the Examples tab on the keypad for ready-made graphs you can edit.',
+    ],
+    examples: [
+      { input: 'y = x² − 4', result: 'a parabola crossing the x-axis at −2 and 2' },
+      { input: 'x² + y² = 16', result: 'a circle of radius 4' },
+      { input: 'y > x² − 3', result: 'the shaded region above a parabola' },
+      { input: 'r = 3 sin(4θ)', result: 'an eight-petal polar rose' },
+    ],
+    faq: [
+      {
+        q: 'How do I graph an equation online?',
+        a: 'Open Plotline, type the equation (for example y = x^2 or x^2 + y^2 = 25) into the first row, and the graph appears instantly. Press Enter to add more equations.',
+      },
+      {
+        q: 'What kinds of equations can Plotline graph?',
+        a: 'Functions like y = sin(x), equations in x and y like circles and ellipses, inequalities with shading, polar equations using θ, parametric curves (x(t), y(t)), points, and your own functions such as f(x) = x^3 − 3x.',
+      },
+      {
+        q: 'Is Plotline a free alternative to Desmos?',
+        a: 'Plotline is an independent, free online graphing calculator that covers the everyday features students use: graphing equations, sliders, inequalities, polar graphs, a scientific calculator and a matrix calculator. It is not affiliated with Desmos.',
+      },
+      {
+        q: 'How do I add a slider?',
+        a: 'Use a letter that is not x or y in an equation, such as y = a·x^2. Plotline offers an "add slider" button for a; drag it or press play to animate the graph.',
+      },
+      ...COMMON_FAQ,
+    ],
+  },
+  {
+    id: 'scientific',
+    path: '/scientific-calculator',
+    file: 'scientific-calculator.html',
+    title: 'Free Scientific Calculator Online – Sin, Log, Roots | Plotline',
+    description:
+      'Free online scientific calculator with sin, cos, tan, inverse trig, logs, powers, roots, factorials, degrees and radians. Shows answers as you type.',
+    h1: 'Free Online Scientific Calculator',
+    lead:
+      'Plotline’s free scientific calculator handles trigonometry (in degrees or radians), logarithms, powers, roots, fractions and factorials, and shows the answer as you type.',
+    label: 'Scientific Calculator',
+    features: [
+      'sin, cos, tan and their inverses, in degrees or radians',
+      'ln, log base 10 and log with any base',
+      'Powers, square and cube roots, n-th roots, factorials',
+      'Real fractions and exact-looking math input',
+      'History of answers and an ans key',
+      'One-click examples for beginners',
+    ],
+    steps: [
+      'Type an expression such as sin(30) or 2^10, or tap the keys.',
+      'The answer appears live; press = or Enter to keep it in the history.',
+      'Tap rad/deg to switch angle units for trigonometry.',
+      'Tap 2nd for inverse trig, eˣ and 10ˣ.',
+      'Tap ans to reuse the previous answer, or tap a past line to edit it.',
+    ],
+    examples: [
+      { input: 'sin(30°)', result: '0.5' },
+      { input: 'log₂(64)', result: '6' },
+      { input: '√(3² + 4²)', result: '5' },
+      { input: '1000(1 + 0.05)¹⁰', result: '1628.894627' },
+    ],
+    faq: [
+      {
+        q: 'How do I switch between degrees and radians?',
+        a: 'Tap the rad/deg key on the keypad. The key shows the current mode, and every trigonometric answer updates immediately.',
+      },
+      {
+        q: 'How do I calculate a log with a different base?',
+        a: 'Use the log_b key, then type the base and the number. For example log_2(64) = 6.',
+      },
+      {
+        q: 'How do I find inverse sine, cosine or tangent?',
+        a: 'Tap 2nd and the sin, cos and tan keys become sin⁻¹, cos⁻¹ and tan⁻¹. For example tan⁻¹(1) = 45 in degrees.',
+      },
+      ...COMMON_FAQ,
+    ],
+  },
+  {
+    id: 'four-function',
+    path: '/basic-calculator',
+    file: 'basic-calculator.html',
+    title: 'Basic Calculator Online – Simple Four-Function Calc | Plotline',
+    description:
+      'A simple, free online calculator for add, subtract, multiply, divide, percent, square and square root. Big keys, works on phones and offline.',
+    h1: 'Simple Online Basic Calculator',
+    lead:
+      'Plotline’s basic calculator is a free, simple four-function calculator for adding, subtracting, multiplying, dividing, percentages, squares and square roots, with big keys that work well on phones.',
+    label: 'Basic Calculator',
+    features: [
+      'Add, subtract, multiply and divide',
+      'Percentages, discounts and splitting bills',
+      'Square and square root keys',
+      'Brackets and correct order of operations',
+      'History of answers and an ans key',
+      'Exact decimals: 0.1 + 0.2 shows 0.3',
+    ],
+    steps: [
+      'Tap the number keys or type with your keyboard.',
+      'Use + − × ÷ and brackets; × and ÷ are done before + and −.',
+      'Use % for percentages, for example 20% × 80 = 16.',
+      'Press = to see and keep the answer, then use ans to keep going.',
+    ],
+    examples: [
+      { input: '1250 ÷ 4', result: '312.5' },
+      { input: '20% × 80', result: '16' },
+      { input: '800 − 800 × 25%', result: '600' },
+      { input: '(2 + 3) × 4', result: '20' },
+    ],
+    faq: [
+      {
+        q: 'How do I calculate a percentage of a number?',
+        a: 'Type the percentage, the % key, × and the number. For example 20% × 80 = 16.',
+      },
+      {
+        q: 'How do I work out a discount?',
+        a: 'Subtract the percentage of the price from the price: for 25% off 800, type 800 − 800 × 25% = 600.',
+      },
+      {
+        q: 'Does the calculator follow the order of operations?',
+        a: 'Yes. Multiplication and division are done before addition and subtraction, and brackets are done first: 2 + 3 × 4 = 14 but (2 + 3) × 4 = 20.',
+      },
+      ...COMMON_FAQ,
+    ],
+  },
+  {
+    id: 'matrix',
+    path: '/matrix-calculator',
+    file: 'matrix-calculator.html',
+    title: 'Matrix Calculator – Determinant, Inverse, RREF | Plotline',
+    description:
+      'Free matrix calculator: determinant, inverse, multiplication, transpose, RREF, rank, trace and powers, with exact fractions. Solve linear systems.',
+    h1: 'Free Online Matrix Calculator',
+    lead:
+      'Plotline’s free matrix calculator finds determinants, inverses, products, transposes, RREF, rank, trace and powers of matrices up to 10×10, with exact fraction answers.',
+    label: 'Matrix Calculator',
+    features: [
+      'Determinant and inverse with exact fractions',
+      'Add, subtract, multiply and scale matrices',
+      'Transpose, RREF (row echelon form), rank and trace',
+      'Matrix powers, including negative powers',
+      'Solve systems of linear equations',
+      'Matrices up to 10 × 10; entries can be fractions like 1/3',
+    ],
+    steps: [
+      'Edit matrix A on the left, or tap + New Matrix; set rows and columns with the steppers.',
+      'Type an expression such as det(A), A^-1, A*B or rref(A) and press Enter.',
+      'Answers keep exact fractions; tap a matrix answer to save it as a new matrix.',
+      'Tap ★ Examples for ready-made problems, such as solving equations.',
+    ],
+    examples: [
+      { input: 'det([[4, 7], [2, 6]])', result: '10' },
+      { input: '[[4, 7], [2, 6]]⁻¹', result: '[[3/5, −7/10], [−1/5, 2/5]]' },
+      { input: 'Solve 2x + y = 5, x + 3y = 10', result: 'x = 1, y = 3' },
+      { input: 'rref([[1, 2, 3], [2, 5, 8]])', result: '[[1, 0, −1], [0, 1, 2]]' },
+    ],
+    faq: [
+      {
+        q: 'How do I find the inverse of a matrix?',
+        a: 'Enter the matrix as A, then type A^-1 or inv(A) and press Enter. The inverse is shown with exact fractions; if the determinant is 0 the matrix has no inverse.',
+      },
+      {
+        q: 'How do I find the determinant of a matrix?',
+        a: 'Enter a square matrix as A and type det(A). For example det([[4, 7], [2, 6]]) = 4·6 − 7·2 = 10.',
+      },
+      {
+        q: 'How do I solve a system of equations with matrices?',
+        a: 'Put the coefficients in A and the right-hand sides in a one-column matrix B, then type inv(A)*B. For 2x + y = 5 and x + 3y = 10 the answer is x = 1, y = 3.',
+      },
+      {
+        q: 'What is RREF?',
+        a: 'RREF (reduced row echelon form) is the simplest equivalent form of a matrix using row operations. Type rref(A) to see it; it shows the rank and the solutions of a linear system.',
+      },
+      ...COMMON_FAQ,
+    ],
+  },
+];
+
+export const pageById = (id: PageId): PageSeo => PAGES.find((p) => p.id === id)!;
+export const pageByPath = (path: string): PageSeo | undefined => {
+  const clean = path.replace(/\/index\.html$/, '/').replace(/\.html$/, '').replace(/\/+$/, '') || '/';
+  return PAGES.find((p) => p.path === clean);
+};
+export const canonicalUrl = (p: PageSeo): string => (p.path === '/' ? `${SITE_URL}/` : `${SITE_URL}${p.path}`);
+
+const esc = (s: string): string =>
+  s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+/** Structured data (JSON-LD) for one page. */
+export function jsonLd(p: PageSeo): object[] {
+  const url = canonicalUrl(p);
+  const app = {
+    '@context': 'https://schema.org',
+    '@type': 'WebApplication',
+    name: p.id === 'graphing' ? `${SITE_NAME} Graphing Calculator` : `${SITE_NAME} ${p.label}`,
+    url,
+    description: p.description,
+    applicationCategory: 'EducationalApplication',
+    operatingSystem: 'Any (web browser)',
+    browserRequirements: 'Requires JavaScript',
+    isAccessibleForFree: true,
+    inLanguage: 'en',
+    image: OG_IMAGE,
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+    featureList: p.features,
+  };
+  const faq = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: p.faq.map((f) => ({
+      '@type': 'Question',
+      name: f.q,
+      acceptedAnswer: { '@type': 'Answer', text: f.a },
+    })),
+  };
+  const out: object[] = [app, faq];
+  if (p.path === '/') {
+    out.push({
+      '@context': 'https://schema.org',
+      '@type': 'WebSite',
+      name: SITE_NAME,
+      url: `${SITE_URL}/`,
+      description: 'Free online graphing, scientific, basic and matrix calculators.',
+    });
+  } else {
+    out.push({
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: SITE_NAME, item: `${SITE_URL}/` },
+        { '@type': 'ListItem', position: 2, name: p.label, item: url },
+      ],
+    });
+  }
+  return out;
+}
+
+/** <head> tags for one page (title, description, canonical, social cards, JSON-LD). */
+export function headHtml(p: PageSeo): string {
+  const url = canonicalUrl(p);
+  const ld = jsonLd(p)
+    .map((o) => `<script type="application/ld+json">${JSON.stringify(o).replace(/</g, '\\u003c')}</script>`)
+    .join('\n    ');
+  return `<title>${esc(p.title)}</title>
+    <meta name="description" content="${esc(p.description)}" />
+    <link rel="canonical" href="${url}" />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="${SITE_NAME}" />
+    <meta property="og:title" content="${esc(p.title)}" />
+    <meta property="og:description" content="${esc(p.description)}" />
+    <meta property="og:url" content="${url}" />
+    <meta property="og:image" content="${OG_IMAGE}" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Plotline: free graphing, scientific and matrix calculator" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="${esc(p.title)}" />
+    <meta name="twitter:description" content="${esc(p.description)}" />
+    <meta name="twitter:image" content="${OG_IMAGE}" />
+    ${ld}`;
+}
+
+/** Visible, crawlable article shown below the calculator. */
+export function contentHtml(p: PageSeo): string {
+  const others = PAGES.filter((o) => o.id !== p.id)
+    .map((o) => `<li><a href="${o.path}">${esc(o.label)}</a> – ${esc(o.description.split('.')[0]!)}.</li>`)
+    .join('');
+  return `<div class="seo-inner">
+  <h1>${esc(p.h1)}</h1>
+  <p class="seo-lead">${esc(p.lead)}</p>
+  <section>
+    <h2>How to use the ${esc(p.label.toLowerCase())}</h2>
+    <ol>${p.steps.map((s) => `<li>${esc(s)}</li>`).join('')}</ol>
+  </section>
+  <section>
+    <h2>What you can do</h2>
+    <ul>${p.features.map((f) => `<li>${esc(f)}</li>`).join('')}</ul>
+  </section>
+  <section>
+    <h2>Examples</h2>
+    <table><thead><tr><th>Type this</th><th>You get</th></tr></thead><tbody>${p.examples
+      .map((e) => `<tr><td><code>${esc(e.input)}</code></td><td>${esc(e.result)}</td></tr>`)
+      .join('')}</tbody></table>
+  </section>
+  <section>
+    <h2>Frequently asked questions</h2>
+    ${p.faq.map((f) => `<details><summary>${esc(f.q)}</summary><p>${esc(f.a)}</p></details>`).join('\n    ')}
+  </section>
+  <section>
+    <h2>More free calculators</h2>
+    <ul>${others}</ul>
+  </section>
+  <p class="seo-note">${SITE_NAME} is an independent project and is not affiliated with Desmos, Texas Instruments or Casio.</p>
+</div>`;
+}

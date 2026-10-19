@@ -1,8 +1,55 @@
-import { defineConfig } from 'vite';
+import { defineConfig, type Plugin } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
+import { PAGES, canonicalUrl, contentHtml, headHtml, type PageSeo } from './src/seo/pages';
+
+const HEAD = /<!--seo:head(?::start-->[\s\S]*?<!--seo:head:end)?-->/;
+const CONTENT = /<article id="seo" class="seo-content"[^>]*>[\s\S]*?<\/article>/;
+
+/** Fill index.html's SEO placeholders for one page. */
+function renderPage(html: string, p: PageSeo): string {
+  return html
+    .replace(HEAD, () => `<!--seo:head:start-->\n    ${headHtml(p)}\n    <!--seo:head:end-->`)
+    .replace(CONTENT, () => `<article id="seo" class="seo-content" data-page="${p.id}">${contentHtml(p)}</article>`);
+}
+
+/**
+ * Pre-renders one HTML file per calculator (index.html, scientific-calculator.html, …)
+ * with its own title, description, canonical URL, structured data and readable
+ * article, so search engines and AI crawlers see real content without JavaScript.
+ * Also writes sitemap.xml.
+ */
+function seoPages(): Plugin {
+  const home = PAGES.find((p) => p.path === '/')!;
+  return {
+    name: 'plotline-seo-pages',
+    transformIndexHtml: { order: 'pre', handler: (html) => renderPage(html, home) },
+    // Runs after Vite has added the finished index.html to the bundle.
+    enforce: 'post',
+    generateBundle: { order: 'post', handler(_opts, bundle) {
+      const index = bundle['index.html'];
+      if (!index || index.type !== 'asset') return;
+      const html = String(index.source);
+      for (const p of PAGES) {
+        if (p.path === '/') continue;
+        this.emitFile({ type: 'asset', fileName: p.file, source: renderPage(html, p) });
+      }
+      const today = new Date().toISOString().slice(0, 10);
+      const urls = PAGES.map(
+        (p) =>
+          `  <url><loc>${canonicalUrl(p)}</loc><lastmod>${today}</lastmod><changefreq>weekly</changefreq><priority>${p.path === '/' ? '1.0' : '0.9'}</priority></url>`,
+      ).join('\n');
+      this.emitFile({
+        type: 'asset',
+        fileName: 'sitemap.xml',
+        source: `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`,
+      });
+    } },
+  };
+}
 
 export default defineConfig({
   plugins: [
+    seoPages(),
     // Makes the app installable (Chrome "Install", Android "Add to Home screen")
     // and usable offline: every built file is precached by the service worker.
     VitePWA({
@@ -36,6 +83,8 @@ export default defineConfig({
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
         navigateFallback: 'index.html',
+        // Let crawler files open as themselves, not as the app.
+        navigateFallbackDenylist: [/\.(?:xml|txt|json|webmanifest)$/, /^\/sw\.js$/],
         cleanupOutdatedCaches: true,
         runtimeCaching: [
           {
