@@ -7,6 +7,14 @@
 export const SITE_URL = 'https://tryplotline.xyz';
 export const SITE_NAME = 'Plotline';
 export const OG_IMAGE = `${SITE_URL}/og-image.png`;
+export const CREATOR = { name: 'Aalok', email: 'aalok.builds@gmail.com' };
+
+const creatorLd = {
+  '@type': 'Person',
+  '@id': `${SITE_URL}/#creator`,
+  name: CREATOR.name,
+  email: `mailto:${CREATOR.email}`,
+};
 
 export type PageId = 'graphing' | 'scientific' | 'four-function' | 'matrix';
 
@@ -48,6 +56,10 @@ const COMMON_FAQ: FaqItem[] = [
   {
     q: 'Does Plotline work offline and on phones?',
     a: 'Yes. Plotline works in any modern browser on phones, tablets, Chromebooks and computers. You can install it as an app from Chrome or Safari, and after the first visit it also works offline.',
+  },
+  {
+    q: 'Who made Plotline?',
+    a: 'Plotline is an independent project made by Aalok. For questions, ideas or feedback, email aalok.builds@gmail.com.',
   },
 ];
 
@@ -281,6 +293,7 @@ export function jsonLd(p: PageSeo): object[] {
     image: OG_IMAGE,
     offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
     featureList: p.features,
+    creator: creatorLd,
   };
   const faq = {
     '@context': 'https://schema.org',
@@ -311,6 +324,9 @@ export function jsonLd(p: PageSeo): object[] {
       name: SITE_NAME,
       url: `${SITE_URL}/`,
       logo: { '@type': 'ImageObject', url: `${SITE_URL}/pwa-512x512.png`, width: 512, height: 512 },
+      founder: creatorLd,
+      email: CREATOR.email,
+      contactPoint: { '@type': 'ContactPoint', contactType: 'customer support', email: CREATOR.email },
     });
   } else {
     out.push({
