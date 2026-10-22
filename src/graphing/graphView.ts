@@ -43,7 +43,7 @@ const ICON_PLUS = icon('<path d="M12 5v14M5 12h14"/>');
 const ICON_MINUS = icon('<path d="M5 12h14"/>');
 /** Crosshair: "reset view" back to the origin. */
 const ICON_RESET = icon('<circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>');
-const LABEL_FONT = "'Plus Jakarta Sans', -apple-system, 'Segoe UI', Roboto, Arial, sans-serif";
+const LABEL_FONT = "'Plus Jakarta Sans Variable', 'Plus Jakarta Sans', -apple-system, 'Segoe UI', Roboto, Arial, sans-serif";
 
 export class GraphView {
   private readonly canvas = document.createElement('canvas');
@@ -74,7 +74,7 @@ export class GraphView {
   private dragging = false;
   private hover: { x: number; y: number } | null = null;
 
-  private colors = { minor: '#cfcbe6', major: '#e8e6f5', axis: '#3a3566', text: '#6e6a92', bg: '#fcfcff', ink: '#1e1b3a' };
+  private colors = { minor: '#cfcbe6', major: '#e8e6f5', axis: '#3a3566', text: '#625e86', bg: '#fcfcff', ink: '#1e1b3a' };
   private removers: Array<() => void> = [];
 
   constructor(private readonly host: HTMLElement) {
@@ -213,7 +213,7 @@ export class GraphView {
       minor: get('--grid-minor', '#cfcbe6'),
       major: get('--grid-major', '#e8e6f5'),
       axis: get('--axis', '#3a3566'),
-      text: get('--text-muted', '#6e6a92'),
+      text: get('--text-muted', '#625e86'),
       bg: get('--graph-bg', '#fcfcff'),
       ink: get('--text', '#1e1b3a'),
     };

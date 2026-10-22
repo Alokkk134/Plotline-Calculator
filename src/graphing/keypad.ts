@@ -350,7 +350,9 @@ export class Keypad {
       b.textContent = k.label;
       if (k.span) b.style.gridColumn = `span ${k.span}`;
       if (k.title) b.title = k.title;
-      b.setAttribute('aria-label', k.title ?? k.label);
+      // The spoken name must include the visible label (e.g. "a², Square").
+      const named = !k.title || k.title.toLowerCase().includes(k.label.toLowerCase()) || !/[\p{L}\p{N}]/u.test(k.label);
+      b.setAttribute('aria-label', named ? (k.title ?? k.label) : `${k.label}, ${k.title}`);
       // Keep the caret in the math field.
       this.on(b, 'mousedown', (e) => e.preventDefault());
       this.on(b, 'click', () => (k.cls === 'link' ? this.showTab('functions') : this.press(k)));

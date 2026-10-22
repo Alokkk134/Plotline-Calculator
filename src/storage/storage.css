@@ -15,7 +15,7 @@
 .pl-title:hover { border-color: var(--border); }
 .pl-title:focus { outline: 2px solid var(--accent); background: var(--bg-soft); }
 
-.pl-dirty { font-size: 12px; font-weight: 600; color: #b26b00; white-space: nowrap; }
+.pl-dirty { font-size: 12px; font-weight: 600; color: #9a5c00; white-space: nowrap; }
 
 .pl-btn {
   display: inline-flex;

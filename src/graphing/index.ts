@@ -40,6 +40,10 @@ function mount(container: HTMLElement): CalculatorInstance {
   handle.className = 'gr-handle';
   handle.setAttribute('role', 'separator');
   handle.setAttribute('aria-label', 'Resize expression list');
+  // A focusable separator must report its position: the panel's share (0–100).
+  handle.setAttribute('aria-valuemin', '0');
+  handle.setAttribute('aria-valuemax', '100');
+  handle.setAttribute('aria-valuenow', '30');
   handle.tabIndex = 0;
 
   const graphPane = document.createElement('div');
@@ -139,13 +143,24 @@ function mount(container: HTMLElement): CalculatorInstance {
     view.resize();
   });
 
-  const ro = new ResizeObserver(() => view.resize());
+  const syncHandle = (): void => {
+    const r = root.getBoundingClientRect();
+    const p = panel.getBoundingClientRect();
+    const share = mq.matches ? p.height / (r.height || 1) : p.width / (r.width || 1);
+    handle.setAttribute('aria-valuenow', String(Math.round(Math.min(1, Math.max(0, share)) * 100)));
+    handle.setAttribute('aria-orientation', mq.matches ? 'horizontal' : 'vertical');
+  };
+  const ro = new ResizeObserver(() => {
+    view.resize();
+    syncHandle();
+  });
   ro.observe(graphPane);
   listen(window, 'resize', () => view.resize());
 
   // Seed with one empty row and focus it only when the user interacts.
   list.analyzeNow();
   view.resize();
+  syncHandle();
 
   let destroyed = false;
   return {

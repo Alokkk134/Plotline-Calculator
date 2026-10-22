@@ -5,7 +5,7 @@
   --bg-panel: #ffffff;
   --border: #e3e0f1;
   --text: #1e1b3a;
-  --text-muted: #6e6a92;
+  --text-muted: #625e86;
   --accent: #5b4fe0;
   --accent-strong: #4338ca;
   --accent-soft: #eceaff;
@@ -26,7 +26,7 @@
   --radius: 10px;
   --radius-lg: 14px;
   --topbar-h: 56px;
-  --font: 'Plus Jakarta Sans', -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font: 'Plus Jakarta Sans Variable', 'Plus Jakarta Sans', -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   /* Curve palette, in the order new expressions receive colors. */
   --c1: #5b4fe0;
   --c2: #f2545b;
@@ -158,7 +158,7 @@ button { font: inherit; cursor: pointer; }
   font-size: 13.5px;
   text-decoration: none;
   white-space: nowrap;
-  transition: color 0.15s, background 0.15s, box-shadow 0.15s;
+  transition: color 0.15s;
 }
 .calc-tab svg { width: 17px; height: 17px; flex: none; }
 .calc-tab:hover { color: var(--text); }
@@ -172,6 +172,22 @@ button { font: inherit; cursor: pointer; }
 .topbar .storage-slot { margin-left: auto; display: flex; align-items: center; gap: 8px; min-width: 0; }
 
 .calc-host { flex: 1; min-height: 0; position: relative; }
+
+/* Pre-rendered loading frame (replaced as soon as the app starts). */
+.boot {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 24px;
+  text-align: center;
+  background: var(--graph-bg);
+}
+.boot-title { margin: 0; font-size: 32px; line-height: 1.2; font-weight: 700; letter-spacing: -0.01em; color: var(--text); }
+.boot-sub { margin: 0; font-size: 14px; color: var(--text-muted); }
 
 /* ---- Install app ---- */
 .install-slot { position: relative; display: flex; align-items: center; margin-left: auto; }

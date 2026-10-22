@@ -174,8 +174,7 @@ export class ExpressionList {
   private addRow(index: number, init?: Partial<ExprState>): Row {
     const color = init?.color ?? this.opts.palette[this.colorCounter % this.opts.palette.length]!;
     this.colorCounter++;
-    // The first row tells first-time users what to do.
-    const mf = createMathInput({ placeholder: index === 0 ? '\\text{Type an equation, e.g. }y=x^2' : '' });
+    const mf = createMathInput();
     mf.classList.add('gr-mf');
     mf.setAttribute('aria-label', 'Expression');
     const el = h('div', 'gr-row');
@@ -189,6 +188,13 @@ export class ExpressionList {
     const line = h('div', 'gr-line');
     const fb = h('span', 'gr-fb');
     line.append(mf, fb);
+    // The first row tells first-time users what to do. Plain text (not a MathLive
+    // placeholder) so it paints with the page instead of after the math engine.
+    if (index === 0) {
+      const ph = h('span', 'gr-placeholder', 'Type an equation, e.g. y = x²');
+      ph.setAttribute('aria-hidden', 'true');
+      line.append(ph);
+    }
     const hint = h('div', 'gr-hint');
     hint.hidden = true;
 
@@ -241,6 +247,7 @@ export class ExpressionList {
       el, num, toggle, mf, fb, hint, sliderBox, range, minIn, maxIn, stepIn, playBtn,
     };
     if (row.latex) mf.value = row.latex;
+    el.classList.toggle('gr-empty', !row.latex.trim());
     this.applyColor(row);
 
     this.rows.splice(index, 0, row);
@@ -269,6 +276,7 @@ export class ExpressionList {
     mf.addEventListener('input', () => {
       this.lastFocused = row;
       row.latex = mf.value;
+      row.el.classList.toggle('gr-empty', !row.latex.trim());
       this.ensureTrailing();
       this.scheduleAnalyze(ANALYZE_DELAY);
     });
@@ -457,6 +465,7 @@ export class ExpressionList {
   private renderFeedback(row: Row): void {
     const a = row.analysis;
     const empty = row.latex.trim() === '';
+    row.el.classList.toggle('gr-empty', empty);
     row.fb.className = 'gr-fb';
     row.fb.replaceChildren();
     row.fb.removeAttribute('title');

@@ -1,5 +1,7 @@
 // Typesets static math (history rows, example cards) rendered with convertLatexToMarkup.
 import 'mathlive/static.css';
+// Self-hosted brand font: no third-party request blocking the first paint.
+import '@fontsource-variable/plus-jakarta-sans';
 import './styles/base.css';
 import { inject } from '@vercel/analytics';
 import { injectSpeedInsights } from '@vercel/speed-insights';
