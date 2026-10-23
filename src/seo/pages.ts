@@ -7,6 +7,8 @@
 export const SITE_URL = 'https://tryplotline.xyz';
 export const SITE_NAME = 'Plotline';
 export const OG_IMAGE = `${SITE_URL}/og-image.png`;
+import { GUIDES, type GuideGroup, type GuidePage } from './guides';
+
 export const CREATOR = { name: 'Aalok', email: 'aalok.builds@gmail.com' };
 
 const creatorLd = {
@@ -266,19 +268,96 @@ export const PAGES: PageSeo[] = [
   },
 ];
 
+
+// ---- all pages: calculator hubs + guides --------------------------------------
+
+/** Any page on the site: a calculator hub or a guide/landing page. */
+export type SitePage = PageSeo | GuidePage;
+export const isGuide = (p: SitePage): p is GuidePage => 'slug' in p;
+/** The calculator a page opens. */
+export const calcOf = (p: SitePage): PageId => (isGuide(p) ? p.calc : p.id);
+export const ALL_PAGES: SitePage[] = [...PAGES, ...GUIDES];
+
 export const pageById = (id: PageId): PageSeo => PAGES.find((p) => p.id === id)!;
-export const pageByPath = (path: string): PageSeo | undefined => {
+export const pageByPath = (path: string): SitePage | undefined => {
   const clean = path.replace(/\/index\.html$/, '/').replace(/\.html$/, '').replace(/\/+$/, '') || '/';
-  return PAGES.find((p) => p.path === clean);
+  return ALL_PAGES.find((p) => p.path === clean);
 };
-export const canonicalUrl = (p: PageSeo): string => (p.path === '/' ? `${SITE_URL}/` : `${SITE_URL}${p.path}`);
+export const canonicalUrl = (p: SitePage): string => (p.path === '/' ? `${SITE_URL}/` : `${SITE_URL}${p.path}`);
+
+/** Where each group of guides lives (breadcrumb parent). */
+const GROUP_PARENT: Record<GuideGroup, string> = {
+  graphs: '/graphs',
+  matrix: '/matrix-calculator',
+  scientific: '/scientific-calculator',
+  basic: '/basic-calculator',
+};
+
+/** Breadcrumb trail from the home page to `p`. */
+export function breadcrumbs(p: SitePage): { name: string; url: string }[] {
+  const home = { name: SITE_NAME, url: `${SITE_URL}/` };
+  if (p.path === '/') return [home];
+  const self = { name: p.label, url: canonicalUrl(p) };
+  if (!isGuide(p) || p.listGroup) return [home, self];
+  const parent = pageByPath(GROUP_PARENT[p.group]);
+  return parent && parent.path !== '/' ? [home, { name: parent.label, url: canonicalUrl(parent) }, self] : [home, self];
+}
+
+const guidesFor = (calc: PageId): GuidePage[] => GUIDES.filter((g) => g.calc === calc && !g.listGroup);
 
 const esc = (s: string): string =>
   s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
+const firstSentence = (s: string): string => `${s.split('. ')[0]!.replace(/\.$/, '')}.`;
+
 /** Structured data (JSON-LD) for one page. */
-export function jsonLd(p: PageSeo): object[] {
+export function jsonLd(p: SitePage): object[] {
   const url = canonicalUrl(p);
+  const faq = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: p.faq.map((f) => ({
+      '@type': 'Question',
+      name: f.q,
+      acceptedAnswer: { '@type': 'Answer', text: f.a },
+    })),
+  };
+  const crumbs = breadcrumbs(p);
+  const breadcrumbLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: crumbs.map((c, i) => ({ '@type': 'ListItem', position: i + 1, name: c.name, item: c.url })),
+  };
+
+  if (isGuide(p)) {
+    const page: Record<string, unknown> = {
+      '@context': 'https://schema.org',
+      '@type': p.listGroup ? 'CollectionPage' : ['WebPage', 'LearningResource'],
+      '@id': `${url}#page`,
+      name: p.h1,
+      url,
+      description: p.description,
+      inLanguage: 'en',
+      isAccessibleForFree: true,
+      image: OG_IMAGE,
+      isPartOf: { '@type': 'WebSite', name: SITE_NAME, url: `${SITE_URL}/` },
+      author: creatorLd,
+    };
+    if (p.listGroup) {
+      const items = GUIDES.filter((g) => g.group === p.listGroup && !g.listGroup);
+      page.mainEntity = {
+        '@type': 'ItemList',
+        itemListElement: items.map((g, i) => ({ '@type': 'ListItem', position: i + 1, name: g.label, url: canonicalUrl(g) })),
+      };
+    } else {
+      page.learningResourceType = 'Interactive tool';
+      page.educationalLevel = 'High school, College';
+      page.about = { '@type': 'Thing', name: p.label };
+      page.teaches = p.lead;
+    }
+    return [page, faq, breadcrumbLd];
+  }
+
   const app = {
     '@context': 'https://schema.org',
     '@type': 'WebApplication',
@@ -295,18 +374,9 @@ export function jsonLd(p: PageSeo): object[] {
     featureList: p.features,
     creator: creatorLd,
   };
-  const faq = {
-    '@context': 'https://schema.org',
-    '@type': 'FAQPage',
-    mainEntity: p.faq.map((f) => ({
-      '@type': 'Question',
-      name: f.q,
-      acceptedAnswer: { '@type': 'Answer', text: f.a },
-    })),
-  };
   const out: object[] = [app, faq];
   if (p.path === '/') {
-    // Site name + logo: what Google shows above the URL in results (like "Desmos").
+    // Site name + logo: what Google shows above the URL in results.
     out.push({
       '@context': 'https://schema.org',
       '@type': 'WebSite',
@@ -329,20 +399,13 @@ export function jsonLd(p: PageSeo): object[] {
       contactPoint: { '@type': 'ContactPoint', contactType: 'customer support', email: CREATOR.email },
     });
   } else {
-    out.push({
-      '@context': 'https://schema.org',
-      '@type': 'BreadcrumbList',
-      itemListElement: [
-        { '@type': 'ListItem', position: 1, name: SITE_NAME, item: `${SITE_URL}/` },
-        { '@type': 'ListItem', position: 2, name: p.label, item: url },
-      ],
-    });
+    out.push(breadcrumbLd);
   }
   return out;
 }
 
 /** <head> tags for one page (title, description, canonical, social cards, JSON-LD). */
-export function headHtml(p: PageSeo): string {
+export function headHtml(p: SitePage): string {
   const url = canonicalUrl(p);
   const ld = jsonLd(p)
     .map((o) => `<script type="application/ld+json">${JSON.stringify(o).replace(/</g, '\\u003c')}</script>`)
@@ -352,7 +415,7 @@ export function headHtml(p: PageSeo): string {
     <link rel="canonical" href="${url}" />
     <meta name="robots" content="index, follow, max-image-preview:large" />
     <meta name="application-name" content="${SITE_NAME}" />
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content="${isGuide(p) ? 'article' : 'website'}" />
     <meta property="og:site_name" content="${SITE_NAME}" />
     <meta property="og:title" content="${esc(p.title)}" />
     <meta property="og:description" content="${esc(p.description)}" />
@@ -368,12 +431,66 @@ export function headHtml(p: PageSeo): string {
     ${ld}`;
 }
 
+const linkList = (pages: SitePage[]): string =>
+  `<ul class="seo-links">${pages
+    .map((o) => `<li><a href="${o.path}">${esc(o.label)}</a> – ${esc(firstSentence(o.description))}</li>`)
+    .join('')}</ul>`;
+
+const faqHtml = (faq: FaqItem[]): string =>
+  faq.map((f) => `<details><summary>${esc(f.q)}</summary><p>${esc(f.a)}</p></details>`).join('\n    ');
+
+const crumbsHtml = (p: SitePage): string => {
+  const c = breadcrumbs(p);
+  if (c.length < 2) return '';
+  return `<nav class="seo-crumbs" aria-label="Breadcrumb">${c
+    .map((x, i) =>
+      i === c.length - 1
+        ? `<span aria-current="page">${esc(x.name)}</span>`
+        : `<a href="${x.url.replace(SITE_URL, '') || '/'}">${esc(x.name)}</a>`,
+    )
+    .join(' <span aria-hidden="true">›</span> ')}</nav>`;
+};
+
+const NOTE = `<p class="seo-note">${SITE_NAME} is an independent project and is not affiliated with Desmos, Texas Instruments or Casio.</p>`;
+
 /** Visible, crawlable article shown below the calculator. */
-export function contentHtml(p: PageSeo): string {
-  const others = PAGES.filter((o) => o.id !== p.id)
-    .map((o) => `<li><a href="${o.path}">${esc(o.label)}</a> – ${esc(o.description.split('.')[0]!)}.</li>`)
-    .join('');
+export function contentHtml(p: SitePage): string {
+  if (isGuide(p)) {
+    const related = p.related.map((s) => GUIDES.find((g) => g.slug === s)).filter((g): g is GuidePage => !!g);
+    const list = p.listGroup ? GUIDES.filter((g) => g.group === p.listGroup && !g.listGroup) : [];
+    const facts = p.facts.length
+      ? `<section><h2>Key facts</h2><table><tbody>${p.facts
+          .map(([k, v]) => `<tr><th scope="row">${esc(k)}</th><td>${esc(v)}</td></tr>`)
+          .join('')}</tbody></table></section>`
+      : '';
+    return `<div class="seo-inner">
+  ${crumbsHtml(p)}
+  <h1>${esc(p.h1)}</h1>
+  <p class="seo-lead">${esc(p.lead)}</p>
+  ${list.length ? `<section><h2>All graphs</h2>${linkList(list)}</section>` : ''}
+  ${facts}
+  ${p.sections.map((s) => `<section><h2>${esc(s.h2)}</h2>${s.p.map((t) => `<p>${esc(t)}</p>`).join('')}</section>`).join('\n  ')}
+  <section>
+    <h2>How to use it in Plotline</h2>
+    <ol>${p.steps.map((s) => `<li>${esc(s)}</li>`).join('')}</ol>
+  </section>
+  <section>
+    <h2>Frequently asked questions</h2>
+    ${faqHtml(p.faq)}
+  </section>
+  ${related.length ? `<section><h2>Related</h2>${linkList(related)}</section>` : ''}
+  <section>
+    <h2>Free calculators</h2>
+    ${linkList(PAGES)}
+  </section>
+  ${NOTE}
+</div>`;
+  }
+
+  const guides = guidesFor(p.id);
+  const library = p.id === 'graphing' ? pageByPath('/graphs') : undefined;
   return `<div class="seo-inner">
+  ${crumbsHtml(p)}
   <h1>${esc(p.h1)}</h1>
   <p class="seo-lead">${esc(p.lead)}</p>
   <section>
@@ -390,14 +507,21 @@ export function contentHtml(p: PageSeo): string {
       .map((e) => `<tr><td><code>${esc(e.input)}</code></td><td>${esc(e.result)}</td></tr>`)
       .join('')}</tbody></table>
   </section>
+  ${
+    guides.length
+      ? `<section><h2>${p.id === 'graphing' ? 'Popular graphs' : 'Popular tools'}</h2>${linkList(guides)}${
+          library ? `<p><a href="${library.path}">Browse the full graph library →</a></p>` : ''
+        }</section>`
+      : ''
+  }
   <section>
     <h2>Frequently asked questions</h2>
-    ${p.faq.map((f) => `<details><summary>${esc(f.q)}</summary><p>${esc(f.a)}</p></details>`).join('\n    ')}
+    ${faqHtml(p.faq)}
   </section>
   <section>
     <h2>More free calculators</h2>
-    <ul>${others}</ul>
+    ${linkList(PAGES.filter((o) => o.path !== p.path))}
   </section>
-  <p class="seo-note">${SITE_NAME} is an independent project and is not affiliated with Desmos, Texas Instruments or Casio.</p>
+  ${NOTE}
 </div>`;
 }

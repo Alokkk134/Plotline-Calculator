@@ -1,7 +1,9 @@
 // App shell: top bar, calculator switcher, routing.
-// Routes are real paths (/, /scientific-calculator, /basic-calculator, /matrix-calculator)
-// so each calculator is its own indexable page. Old "#/scientific" links still work.
-// Anything after "?" in the hash (e.g. "#/graphing?s=...") belongs to the storage module.
+// Routes are real paths: the calculator hubs (/, /scientific-calculator,
+// /basic-calculator, /matrix-calculator) and guide pages (/graphs/sine,
+// /inverse-matrix-calculator, …) that open a calculator with a preset loaded.
+// Old "#/scientific" links still work. Anything after "?" in the hash
+// (e.g. "#/graphing?s=...") belongs to the storage module.
 import { mountStorageUI } from '../storage';
 import { mountInstallButton, registerServiceWorker } from './install';
 import { graphingModule } from '../graphing';
@@ -9,7 +11,7 @@ import { scientificModule } from '../scientific';
 import { fourFunctionModule } from '../fourfunction';
 import { matrixModule } from '../matrix';
 import type { CalculatorId, CalculatorInstance, CalculatorModule } from './types';
-import { canonicalUrl, contentHtml, jsonLd, pageById, pageByPath } from '../seo/pages';
+import { calcOf, canonicalUrl, contentHtml, isGuide, jsonLd, pageById, pageByPath, type SitePage } from '../seo/pages';
 import { topbarHtml } from './chrome';
 
 const MODULES: CalculatorModule[] = [graphingModule, scientificModule, fourFunctionModule, matrixModule];
@@ -21,15 +23,19 @@ function routeFromHash(hash = location.hash): CalculatorId | null {
 }
 
 /** Hash route first (old links, share links), then the URL path. */
-export function routeFromLocation(): CalculatorId {
-  return routeFromHash() ?? pageByPath(location.pathname)?.id ?? 'graphing';
+export function routeFromLocation(): SitePage {
+  const hashId = routeFromHash();
+  if (hashId) return pageById(hashId);
+  return pageByPath(location.pathname) ?? pageById('graphing');
 }
 
-const pathFor = (id: CalculatorId): string => pageById(id).path;
+const hubPath = (id: CalculatorId): string => pageById(id).path;
 
 /** Keep <title>, description, canonical, social tags, JSON-LD and the article in sync. */
-function applySeo(id: CalculatorId): void {
-  const p = pageById(id);
+function applySeo(p: SitePage): void {
+  // Leave a pre-rendered "page not found" article (404.html) alone.
+  const article = document.getElementById('seo');
+  if (article?.dataset.page === '404') return;
   document.title = p.title;
   const set = (sel: string, attr: string, val: string): void => {
     document.querySelector(sel)?.setAttribute(attr, val);
@@ -49,17 +55,17 @@ function applySeo(id: CalculatorId): void {
     s.textContent = JSON.stringify(obj);
     document.head.append(s);
   }
-  const article = document.getElementById('seo');
-  if (article && article.dataset.page !== id) {
+  if (article && article.dataset.page !== p.path) {
     article.innerHTML = contentHtml(p);
-    article.dataset.page = id;
+    article.dataset.page = p.path;
   }
 }
 
 export function createShell(root: HTMLElement): void {
   // Same markup the build pre-rendered (see chrome.ts), now with an empty host
   // for the live calculator in place of the loading placeholder.
-  root.innerHTML = `${topbarHtml(routeFromLocation())}
+  const first = routeFromLocation();
+  root.innerHTML = `${topbarHtml(calcOf(first))}
     <main class="calc-host"></main>`;
 
   const tabs = root.querySelector<HTMLElement>('.calc-tabs')!;
@@ -69,7 +75,7 @@ export function createShell(root: HTMLElement): void {
   let activeId: CalculatorId | null = null;
   let active: CalculatorInstance | null = null;
 
-  const mount = (id: CalculatorId, force = false) => {
+  const mount = (id: CalculatorId, force = false): void => {
     if (id === activeId && active && !force) return;
     active?.destroy();
     host.replaceChildren();
@@ -83,18 +89,25 @@ export function createShell(root: HTMLElement): void {
       if (a.dataset.id === id) a.setAttribute('aria-current', 'page');
       else a.removeAttribute('aria-current');
     }
-    applySeo(id);
   };
 
-  /** Switch calculator and update the address bar (no page reload). */
-  const navigate = (id: CalculatorId): void => {
-    const path = pathFor(id);
-    // Mount first so the new <title> is in place when the URL changes:
-    // Google Analytics records a page view on pushState and reads the title then.
-    mount(id);
-    if (location.pathname !== path || location.hash) history.pushState(null, '', path);
+  /** Show a page: its calculator (fresh, with the guide's preset if any) plus its SEO. */
+  const show = (p: SitePage): void => {
+    const preset = isGuide(p) ? p.preset : undefined;
+    mount(calcOf(p), preset !== undefined);
+    // A copy, so edits in the calculator never change the guide's data.
+    if (preset !== undefined) active!.setState(JSON.parse(JSON.stringify(preset)));
+    applySeo(p);
   };
-  // Internal links (tabs, logo, "More free calculators") switch without reloading.
+
+  /** Go to a page and update the address bar (no page reload). */
+  const navigate = (p: SitePage): void => {
+    // Show first so the new <title> is in place when the URL changes:
+    // Google Analytics records a page view on pushState and reads the title then.
+    show(p);
+    if (location.pathname !== p.path || location.hash) history.pushState(null, '', p.path);
+  };
+  // Internal links (tabs, logo, guide links) switch without reloading.
   document.addEventListener('click', (e) => {
     if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
     const a = (e.target as Element | null)?.closest?.('a[href]') as HTMLAnchorElement | null;
@@ -102,13 +115,13 @@ export function createShell(root: HTMLElement): void {
     const page = pageByPath(a.pathname);
     if (!page) return;
     e.preventDefault();
-    navigate(page.id);
+    navigate(page);
     if (!a.closest('.topbar')) window.scrollTo({ top: 0, behavior: 'smooth' });
   });
 
-  mount(routeFromLocation());
-  window.addEventListener('popstate', () => mount(routeFromLocation()));
-  window.addEventListener('hashchange', () => mount(routeFromLocation()));
+  show(first);
+  window.addEventListener('popstate', () => show(routeFromLocation()));
+  window.addEventListener('hashchange', () => show(routeFromLocation()));
   window.addEventListener('resize', () => active?.resize?.());
 
   mountInstallButton(root.querySelector<HTMLElement>('.install-slot')!);
@@ -117,14 +130,17 @@ export function createShell(root: HTMLElement): void {
   mountStorageUI(slot, {
     getActive: () => ({ id: activeId!, instance: active! }),
     open: (calculator, state) => {
-      if (calculator !== activeId) history.replaceState(null, '', pathFor(calculator));
+      // Opening a saved/shared item: it belongs on the calculator's hub page.
+      const hub = pageById(calculator);
+      if (location.pathname !== hub.path) history.replaceState(null, '', hub.path);
       // A null state means "new blank": remount fresh rather than relying on each calculator's reset.
-      mount(calculator, state == null);
+      mount(calculator, true);
       if (state != null) active!.setState(state);
+      applySeo(hub);
     },
   });
 
   // Storage has read any share link by now; turn an old "#/scientific" address into the clean path.
   const hashId = routeFromHash();
-  if (hashId && !location.hash.includes('?')) history.replaceState(null, '', pathFor(hashId));
+  if (hashId && !location.hash.includes('?')) history.replaceState(null, '', hubPath(hashId));
 }

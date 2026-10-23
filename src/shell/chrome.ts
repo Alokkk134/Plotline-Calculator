@@ -1,7 +1,7 @@
 // Top bar markup (logo + calculator tabs). Plain strings with no browser-only
 // imports, so the build can pre-render it into every page (instant first
 // paint) and the running app uses the exact same markup.
-import { PAGES, pageById, type PageId } from '../seo/pages';
+import { PAGES, calcOf, type PageId, type SitePage } from '../seo/pages';
 
 /** Full tab names (desktop). */
 export const TAB_TITLES: Record<PageId, string> = {
@@ -56,8 +56,8 @@ export function topbarHtml(active: PageId): string {
  * Pre-rendered first screen: the real header plus a light placeholder where the
  * calculator appears. Shown until the app's JavaScript takes over.
  */
-export function bootHtml(active: PageId): string {
-  const label = pageById(active).label;
-  return `${topbarHtml(active)}
+export function bootHtml(page: SitePage): string {
+  const label = page.label;
+  return `${topbarHtml(calcOf(page))}
     <main class="calc-host"><div class="boot" aria-busy="true"><p class="boot-title">${label}</p><p class="boot-sub">Loading…</p></div></main>`;
 }

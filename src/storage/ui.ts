@@ -76,6 +76,9 @@ export function mountStorageUI(slot: HTMLElement, host: StorageHost): void {
   let currentId: string | null = null;
   let title = DEFAULT_TITLE;
   let trackedCalc: CalculatorId | null = null;
+  // The calculator instance being tracked: a fresh mount (switching calculator,
+  // or opening a guide page with its example) starts a new, unedited document.
+  let trackedInstance: unknown = null;
   let baseline: string | null = null;
   let dirty = false;
 
@@ -155,6 +158,11 @@ export function mountStorageUI(slot: HTMLElement, host: StorageHost): void {
 
   function resetTracking(calc: CalculatorId | null): void {
     trackedCalc = calc;
+    try {
+      trackedInstance = active().instance;
+    } catch {
+      trackedInstance = null;
+    }
     baseline = currentJson();
     dirty = false;
     dirtyDot.hidden = true;
@@ -168,8 +176,8 @@ export function mountStorageUI(slot: HTMLElement, host: StorageHost): void {
       return;
     }
     if (!a?.instance) return;
-    if (a.id !== trackedCalc) {
-      // The user switched calculators: start a fresh, unsaved document.
+    if (a.id !== trackedCalc || a.instance !== trackedInstance) {
+      // The user switched calculators (or opened a guide): start a fresh, unsaved document.
       currentId = null;
       setTitle(DEFAULT_TITLE);
       resetTracking(a.id);
@@ -200,6 +208,7 @@ export function mountStorageUI(slot: HTMLElement, host: StorageHost): void {
       const item = store.save({ id: currentId, title, calculator: a.id, state, thumbnail });
       currentId = item.id;
       trackedCalc = a.id;
+      trackedInstance = a.instance;
       baseline = safeStringify(state);
       dirty = false;
       dirtyDot.hidden = true;
