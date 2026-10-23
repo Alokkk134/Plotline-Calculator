@@ -408,7 +408,7 @@ math-field.gr-mf::part(menu-toggle) { display: none; }
   color: var(--text-muted);
   margin: 0 0 6px 2px;
 }
-.gr-kp-grid { display: grid; gap: 6px; }
+.gr-kp-grid { display: grid; gap: 6px; grid-template-columns: repeat(var(--cols, 3), minmax(0, 1fr)); }
 .gr-key {
   height: 40px;
   padding: 0 2px;
@@ -479,6 +479,9 @@ math-field.gr-mf::part(menu-toggle) { display: none; }
   .gr-graph { flex: 1; }
   .gr-collapsed .gr-panel { display: none; }
   .gr-root { --gr-panel-h: 42%; }
+  /* While the keypad is open the equation list gets most of the space above it,
+     so the row being typed in (and its neighbours) stays in view. */
+  .gr-outer:has(.gr-keypad:not(.gr-kp-closed)) .gr-root { --gr-panel-h: 60%; }
   .gr-zoom-buttons { top: 10px; right: 10px; }
   .gr-rows { padding: 2px 8px 60px; gap: 6px; }
   .gr-kp-tip { display: none; }
@@ -487,10 +490,15 @@ math-field.gr-mf::part(menu-toggle) { display: none; }
   .gr-kp-tab { padding: 6px 10px; font-size: 12.5px; white-space: nowrap; }
   .gr-kp-hide { padding: 6px 11px; font-size: 14px; }
   .gr-kp-hide .kp-long { display: none; }
-  .gr-kp-body { max-height: 46vh; padding: 6px 6px 8px; }
+  /* Keypad height: at most 46% of the screen, and always leave ~300px for the
+     header, graph and equation list (the keys scroll instead). */
+  .gr-kp-body { max-height: min(46vh, max(150px, calc(100vh - var(--topbar-h) - 300px))); padding: 6px 6px 8px; }
+  @supports (height: 100dvh) {
+    .gr-kp-body { max-height: min(46dvh, max(150px, calc(100dvh - var(--topbar-h) - 300px))); }
+  }
 
   /* Two key groups per row; wide groups and the edit row span both. */
-  .gr-kp-groups { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 6px; }
+  .gr-kp-groups { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 6px; }
   .gr-kp-group { max-width: none; min-width: 0; }
   .gr-kp-wide, .gr-kp-navgroup { grid-column: 1 / -1; }
   /* Keep ⌫ and "new row" reachable even when the keys above scroll. */
@@ -503,11 +511,11 @@ math-field.gr-mf::part(menu-toggle) { display: none; }
     border-top: 1px solid var(--border);
   }
   .gr-kp-navgroup .gr-kp-heading { display: none; }
-  .gr-kp-wide .gr-kp-grid { grid-template-columns: repeat(5, minmax(0, 1fr)) !important; }
-  .gr-kp-navgroup .gr-kp-grid { grid-template-columns: repeat(6, minmax(0, 1fr)) !important; }
-  .gr-kp-heading { margin-bottom: 4px; font-size: 10px; }
-  .gr-kp-grid { gap: 5px; }
-  .gr-key { height: 40px; font-size: 15px; border-radius: 11px; }
+  .gr-kp-grid { grid-template-columns: repeat(var(--phone-cols, var(--cols, 3)), minmax(0, 1fr)); }
+  /* One line only, so side-by-side key blocks stay aligned. */
+  .gr-kp-heading { margin: 0 0 3px 2px; font-size: 9.5px; letter-spacing: 0.05em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .gr-kp-grid { gap: 4px; }
+  .gr-key { height: 38px; font-size: 15px; border-radius: 10px; }
   .gr-ex-grid { grid-template-columns: 1fr 1fr; gap: 6px; }
   .gr-ex { padding: 7px 9px; }
   .gr-ex-math { font-size: 13px; }

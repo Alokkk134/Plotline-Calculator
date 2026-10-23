@@ -47,6 +47,17 @@ export interface ExpressionListOptions {
   onRowActivate?(): void;
 }
 
+/**
+ * Focus a math field without the browser scrolling the whole page to it (on
+ * phones that would push the header and graph off screen; the list scrolls itself).
+ */
+export function focusWithoutScroll(mf: MathfieldElement): void {
+  const x = window.scrollX;
+  const y = window.scrollY;
+  mf.focus();
+  if (window.scrollX !== x || window.scrollY !== y) window.scrollTo(x, y);
+}
+
 function h<K extends keyof HTMLElementTagNameMap>(tag: K, cls: string, text?: string): HTMLElementTagNameMap[K] {
   const e = document.createElement(tag);
   e.className = cls;
@@ -125,7 +136,8 @@ export class ExpressionList {
     }
     this.ensureTrailing();
     this.analyzeNow();
-    this.rows[this.rows.length - 1]?.el.scrollIntoView({ block: 'nearest' });
+    const last = this.rows[this.rows.length - 1];
+    if (last) this.revealRow(last);
   }
 
   /** Math field that keypad input should go to. */
@@ -411,9 +423,26 @@ export class ExpressionList {
   private focusRow(row: Row | undefined, atEnd: boolean): void {
     if (!row) return;
     this.markActive(row);
-    row.mf.focus();
+    focusWithoutScroll(row.mf);
     if (atEnd) row.mf.executeCommand('moveToMathfieldEnd');
-    row.el.scrollIntoView({ block: 'nearest' });
+    this.revealRow(row);
+  }
+
+  /** Scroll only the expression list (never the page) so `row` is fully visible. */
+  private revealRow(row: Row): void {
+    const wrap = this.listEl.parentElement;
+    if (!wrap) return;
+    const w = wrap.getBoundingClientRect();
+    const r = row.el.getBoundingClientRect();
+    const pad = 8;
+    if (r.top < w.top + pad) wrap.scrollTop -= w.top + pad - r.top;
+    else if (r.bottom > w.bottom - pad) wrap.scrollTop += Math.min(r.bottom - (w.bottom - pad), r.top - (w.top + pad));
+  }
+
+  /** Bring the row being edited into view (after the keypad opens or the layout changes). */
+  revealActive(): void {
+    const row = this.lastFocused && this.rows.includes(this.lastFocused) ? this.lastFocused : null;
+    if (row) this.revealRow(row);
   }
 
   // ---- analysis ------------------------------------------------------------

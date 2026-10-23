@@ -2,6 +2,7 @@
 // function without knowing the syntax. Keys insert into the focused row.
 import type { MathfieldElement } from 'mathlive';
 import { convertLatexToMarkup } from 'mathlive';
+import { focusWithoutScroll } from './expressionList';
 
 export interface KeypadHost {
   /** The math field to type into (focused row, or the last row). */
@@ -28,6 +29,8 @@ interface Key {
 interface KeyGroup {
   heading?: string;
   cols: number;
+  /** Columns on phones (defaults to `cols`). */
+  phoneCols?: number;
   /** On phones, spans the full keypad width instead of half. */
   wide?: boolean;
   keys: Key[];
@@ -95,6 +98,7 @@ const MAIN: KeyGroup[] = [
   {
     heading: 'Popular',
     cols: 3,
+    phoneCols: 5,
     wide: true,
     keys: [
       { label: 'sin', latex: '\\sin\\left(#?\\right)', title: 'Sine, e.g. y = sin(x)' },
@@ -127,15 +131,6 @@ const FUNCTIONS: KeyGroup[] = [
     ],
   },
   {
-    heading: 'Hyperbolic',
-    cols: 3,
-    keys: [
-      { label: 'sinh', latex: '\\sinh\\left(#?\\right)', title: 'Hyperbolic sine' },
-      { label: 'cosh', latex: '\\cosh\\left(#?\\right)', title: 'Hyperbolic cosine' },
-      { label: 'tanh', latex: '\\tanh\\left(#?\\right)', title: 'Hyperbolic tangent' },
-    ],
-  },
-  {
     heading: 'Powers, roots & logs',
     cols: 3,
     keys: [
@@ -165,10 +160,14 @@ const FUNCTIONS: KeyGroup[] = [
       { label: 'n!', latex: '!', title: 'Factorial, e.g. 5! = 120' },
     ],
   },
+  // Four equal 3×3 blocks, so the keys line up in a clean grid on phones (two per row).
   {
-    heading: 'Counting & constants',
+    heading: 'Hyperbolic & counting',
     cols: 3,
     keys: [
+      { label: 'sinh', latex: '\\sinh\\left(#?\\right)', title: 'Hyperbolic sine' },
+      { label: 'cosh', latex: '\\cosh\\left(#?\\right)', title: 'Hyperbolic cosine' },
+      { label: 'tanh', latex: '\\tanh\\left(#?\\right)', title: 'Hyperbolic tangent' },
       { label: 'nCr', latex: '\\operatorname{nCr}\\left(#?,#?\\right)', title: 'Combinations' },
       { label: 'nPr', latex: '\\operatorname{nPr}\\left(#?,#?\\right)', title: 'Permutations' },
       { label: 'gcd', latex: '\\operatorname{gcd}\\left(#?,#?\\right)', title: 'Greatest common divisor' },
@@ -183,6 +182,8 @@ const ABC: KeyGroup[] = [
   {
     heading: 'Letters (use for sliders, e.g. y = a·x²)',
     cols: 9,
+    phoneCols: 7,
+    wide: true,
     keys: [
       ...'abcdfghjk'.split(''),
       ...'lmnpqrstu'.split(''),
@@ -325,7 +326,7 @@ export class Keypad {
         hd.textContent = g.heading;
         box.appendChild(hd);
       }
-      box.appendChild(this.grid(g.keys, g.cols));
+      box.appendChild(this.grid(g.keys, g.cols, g.phoneCols));
       groupsEl.appendChild(box);
     }
     const nav = document.createElement('div');
@@ -333,16 +334,18 @@ export class Keypad {
     const hd = document.createElement('div');
     hd.className = 'gr-kp-heading';
     hd.textContent = 'Edit';
-    nav.append(hd, this.grid(NAV, 2));
+    nav.append(hd, this.grid(NAV, 2, 6));
     groupsEl.appendChild(nav);
     p.appendChild(groupsEl);
     return p;
   }
 
-  private grid(keys: Key[], cols: number): HTMLElement {
+  private grid(keys: Key[], cols: number, phoneCols = cols): HTMLElement {
     const g = document.createElement('div');
     g.className = 'gr-kp-grid';
-    g.style.gridTemplateColumns = `repeat(${cols}, minmax(0, 1fr))`;
+    // Column counts come from CSS variables so phones can use their own (see graphing.css).
+    g.style.setProperty('--cols', String(cols));
+    g.style.setProperty('--phone-cols', String(phoneCols));
     for (const k of keys) {
       const b = document.createElement('button');
       b.type = 'button';
@@ -400,7 +403,7 @@ export class Keypad {
       return;
     }
     const mf = this.host.activeField();
-    mf.focus();
+    focusWithoutScroll(mf);
     if (k.cmd === 'backspace') mf.executeCommand('deleteBackward');
     else if (k.cmd === 'left') mf.executeCommand('moveToPreviousChar');
     else if (k.cmd === 'right') mf.executeCommand('moveToNextChar');

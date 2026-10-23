@@ -64,13 +64,24 @@ function mount(container: HTMLElement): CalculatorInstance {
     // Phones: the keypad replaces the system keyboard, so show it while editing.
     onRowActivate: () => {
       if (mq.matches && !keypad.open) keypad.setOpen(true);
+      revealSoon();
     },
   });
+  // After the layout settles (keypad opened, panel resized), keep the row being
+  // edited in view so phone users always see what they type.
+  let revealTimer = 0;
+  const revealSoon = (): void => {
+    window.clearTimeout(revealTimer);
+    revealTimer = window.setTimeout(() => requestAnimationFrame(() => list.revealActive()), 30);
+  };
   const keypad = new Keypad({
     activeField: () => list.activeField(),
     enter: () => list.addRowAtEnd(true),
     insertExpressions: (latexes) => list.insertExpressions(latexes),
-    onToggle: () => view.resize(),
+    onToggle: (open) => {
+      view.resize();
+      if (open) revealSoon();
+    },
   });
   panel.append(header, listWrap);
   root.append(panel, handle, graphPane);
@@ -153,6 +164,7 @@ function mount(container: HTMLElement): CalculatorInstance {
   const ro = new ResizeObserver(() => {
     view.resize();
     syncHandle();
+    if (mq.matches && keypad.open) revealSoon();
   });
   ro.observe(graphPane);
   listen(window, 'resize', () => view.resize());
@@ -183,6 +195,7 @@ function mount(container: HTMLElement): CalculatorInstance {
     destroy(): void {
       if (destroyed) return;
       destroyed = true;
+      window.clearTimeout(revealTimer);
       ro.disconnect();
       for (const c of cleanups) c();
       cleanups.length = 0;
