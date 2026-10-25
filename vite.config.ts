@@ -1,7 +1,7 @@
 import { defineConfig, type Plugin } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 import {
-  ALL_PAGES, CREATOR, PAGES, SITE_URL, canonicalUrl, contentHtml, headHtml, isGuide, type SitePage,
+  ALL_PAGES, CONTENT_UPDATED, CREATOR, PAGES, SITE_URL, canonicalUrl, contentHtml, headHtml, isGuide, type SitePage,
 } from './src/seo/pages';
 import { GUIDES } from './src/seo/guides';
 import { bootHtml } from './src/shell/chrome';
@@ -93,11 +93,11 @@ function seoPages(): Plugin {
       }
       this.emitFile({ type: 'asset', fileName: '404.html', source: notFoundPage(html) });
       this.emitFile({ type: 'asset', fileName: 'llms.txt', source: llmsTxt() });
-      const today = new Date().toISOString().slice(0, 10);
+      const lastmod = CONTENT_UPDATED; // real content date, not the build date
       const priority = (p: SitePage): string => (p.path === '/' ? '1.0' : isGuide(p) ? '0.8' : '0.9');
       const urls = ALL_PAGES.map(
         (p) =>
-          `  <url><loc>${canonicalUrl(p)}</loc><lastmod>${today}</lastmod><changefreq>weekly</changefreq><priority>${priority(p)}</priority></url>`,
+          `  <url><loc>${canonicalUrl(p)}</loc><lastmod>${lastmod}</lastmod><changefreq>weekly</changefreq><priority>${priority(p)}</priority></url>`,
       ).join('\n');
       this.emitFile({
         type: 'asset',
@@ -116,9 +116,9 @@ const GA_ID = 'G-F56XZ7LDGV';
  * development doesn't count as visits. Every pre-rendered page gets it because
  * they are all made from the built index.html.
  *
- * The gtag() queue is set up immediately (so the visit is recorded), but the
- * 180 KB gtag.js library is fetched only after the page has loaded and the
- * browser is idle, so it doesn't delay the first paint or block input.
+ * The gtag() queue is set up immediately; the 180 KB gtag.js library is fetched
+ * asynchronously right after the first paint, so it doesn't delay what the
+ * visitor sees but still counts short visits.
  */
 function googleAnalytics(): Plugin {
   return {
@@ -130,7 +130,7 @@ function googleAnalytics(): Plugin {
         html.replace(
           '<head>',
           `<head>
-    <!-- Google tag (gtag.js), library loaded after page load -->
+    <!-- Google tag (gtag.js), library loaded right after first paint -->
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
@@ -138,16 +138,22 @@ function googleAnalytics(): Plugin {
 
       gtag('config', '${GA_ID}');
 
-      window.addEventListener('load', function () {
-        var load = function () {
+      // Fetch gtag.js right after the first paint: it never delays what the
+      // visitor sees, but even short visits are counted (waiting for idle time
+      // missed visitors who left within a few seconds).
+      (function () {
+        var done = false;
+        function load() {
+          if (done) return;
+          done = true;
           var s = document.createElement('script');
           s.async = true;
           s.src = 'https://www.googletagmanager.com/gtag/js?id=${GA_ID}';
           document.head.appendChild(s);
-        };
-        if ('requestIdleCallback' in window) requestIdleCallback(load, { timeout: 4000 });
-        else setTimeout(load, 2000);
-      });
+        }
+        requestAnimationFrame(function () { setTimeout(load, 0); });
+        setTimeout(load, 800);
+      })();
     </script>`,
         ),
     },

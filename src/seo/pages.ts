@@ -7,6 +7,12 @@
 export const SITE_URL = 'https://tryplotline.xyz';
 export const SITE_NAME = 'Plotline';
 export const OG_IMAGE = `${SITE_URL}/og-image.png`;
+/**
+ * When page content last changed (sitemap <lastmod>, guides' dateModified).
+ * Bump it only when page text actually changes: a date that changes on every
+ * deploy teaches search engines to ignore it.
+ */
+export const CONTENT_UPDATED = '2026-10-23';
 import { GUIDES, type GuideGroup, type GuidePage } from './guides';
 
 export const CREATOR = { name: 'Aalok', email: 'aalok.builds@gmail.com' };
@@ -354,6 +360,7 @@ export function jsonLd(p: SitePage): object[] {
       page.educationalLevel = 'High school, College';
       page.about = { '@type': 'Thing', name: p.label };
       page.teaches = p.lead;
+      page.dateModified = CONTENT_UPDATED;
     }
     return [page, faq, breadcrumbLd];
   }

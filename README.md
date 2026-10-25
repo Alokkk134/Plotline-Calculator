@@ -1,6 +1,8 @@
 # Plotline
 
-Friendly online calculators: Graphing, Scientific, Four Function and Matrix, with local Save, "My graphs" and share links.
+Free online calculators: **[Graphing](https://tryplotline.xyz/)**, **[Scientific](https://tryplotline.xyz/scientific-calculator)**, **[Basic](https://tryplotline.xyz/basic-calculator)** and **[Matrix](https://tryplotline.xyz/matrix-calculator)**, with local Save, "My graphs" and share links. Works offline and installs as an app.
+
+**Live site: [tryplotline.xyz](https://tryplotline.xyz/)** · [Graph library](https://tryplotline.xyz/graphs) · [Inverse matrix calculator](https://tryplotline.xyz/inverse-matrix-calculator) · [RREF calculator](https://tryplotline.xyz/rref-calculator) · [Log calculator](https://tryplotline.xyz/log-calculator)
 
 ## Run
 
