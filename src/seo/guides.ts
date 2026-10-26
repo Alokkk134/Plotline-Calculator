@@ -36,6 +36,10 @@ export interface GuidePage {
   preset?: unknown;
   /** Render a link list of this group (library pages). */
   listGroup?: GuideGroup;
+  /** Illustration of the preset graph, rendered at build time (graph guides). */
+  figure?: { alt: string; caption: string };
+  /** Trusted references for further reading. */
+  learnMore?: { name: string; url: string }[];
 }
 
 // ---- preset helpers ---------------------------------------------------------
@@ -1013,4 +1017,104 @@ export const GUIDES: GuidePage[] = [
   },
 ];
 
-export const guideBySlug = (slug: string): GuidePage | undefined => GUIDES.find((g) => g.slug === slug);
+// ---- illustrations and further reading --------------------------------------
+const FIGURES: Record<string, GuidePage['figure']> = {
+  'linear-equation': {
+    alt: 'Graph of the straight line y = 2x + 1, rising from left to right and crossing the y-axis at 1.',
+    caption: 'y = 2x + 1: slope 2, y-intercept 1.',
+  },
+  parabola: {
+    alt: 'Graph of the parabola y = x² − 4, opening upward with its vertex at (0, −4) and crossing the x-axis at −2 and 2.',
+    caption: 'y = x² − 4: vertex (0, −4), roots x = −2 and x = 2.',
+  },
+  'cubic-function': {
+    alt: 'Graphs of y = x³ − 3x, with a local maximum at (−1, 2) and a local minimum at (1, −2), and of y = x³ for comparison.',
+    caption: 'y = x³ − 3x (purple) and y = x³ (red).',
+  },
+  'absolute-value': {
+    alt: 'Graph of the V-shaped y = |x| with its corner at the origin, and of y = |x − 2| + 1 shifted right 2 and up 1.',
+    caption: 'y = |x| (purple) and y = |x − 2| + 1 (red), vertex (2, 1).',
+  },
+  'square-root': {
+    alt: 'Graph of y = √x starting at the origin and curving slowly upward to the right, next to the parabola y = x².',
+    caption: 'y = √x (purple) and y = x² (red).',
+  },
+  'reciprocal-function': {
+    alt: 'Graph of the hyperbola y = 1/x in the first and third quadrants, with asymptotes along both axes.',
+    caption: 'y = 1/x: asymptotes x = 0 and y = 0.',
+  },
+  'exponential-function': {
+    alt: 'Graphs of the exponential curves y = 2ˣ and y = eˣ, both passing through (0, 1) and rising steeply to the right.',
+    caption: 'y = 2ˣ (purple) and y = eˣ (red), both through (0, 1).',
+  },
+  logarithm: {
+    alt: 'Graphs of y = ln x and y = log x, both crossing the x-axis at (1, 0) and approaching the y-axis as an asymptote.',
+    caption: 'y = ln x (purple) and y = log₁₀ x (red), both through (1, 0).',
+  },
+  sine: {
+    alt: 'Graph of the sine wave y = sin x oscillating between −1 and 1 with period 2π.',
+    caption: 'y = sin x: amplitude 1, period 2π.',
+  },
+  cosine: {
+    alt: 'Graphs of y = cos x, starting at its maximum of 1 at x = 0, and y = sin x, the same wave shifted by π/2.',
+    caption: 'y = cos x (purple) and y = sin x (red).',
+  },
+  tangent: {
+    alt: 'Graph of y = tan x with repeating rising branches separated by vertical asymptotes at x = ±π/2.',
+    caption: 'y = tan x: period π, asymptotes at x = π/2 + kπ.',
+  },
+  circle: {
+    alt: 'Graph of the circle x² + y² = 16 of radius 4 centered at the origin, and a smaller circle of radius 2 centered at (2, 1).',
+    caption: 'x² + y² = 16 (purple) and (x − 2)² + (y − 1)² = 4 (red).',
+  },
+  inequality: {
+    alt: 'Shaded region above the parabola y = x² − 3 overlapping the shaded region below the dashed line y = x + 3.',
+    caption: 'y > x² − 3 (purple) and y < x + 3 (red); dashed lines are not included.',
+  },
+  'polar-rose': {
+    alt: 'Polar rose r = 3 sin(4θ) with eight petals of length 3 around the origin.',
+    caption: 'r = 3 sin(4θ): an 8-petal rose.',
+  },
+};
+
+const wiki = (name: string, page: string): { name: string; url: string } => ({
+  name: `${name} (Wikipedia)`,
+  url: `https://en.wikipedia.org/wiki/${page}`,
+});
+const LEARN_MORE: Record<string, GuidePage['learnMore']> = {
+  graphs: [wiki('Graph of a function', 'Graph_of_a_function')],
+  'linear-equation': [wiki('Linear equation', 'Linear_equation'), wiki('Slope', 'Slope')],
+  parabola: [wiki('Quadratic function', 'Quadratic_function'), wiki('Parabola', 'Parabola')],
+  'cubic-function': [wiki('Cubic function', 'Cubic_function')],
+  'absolute-value': [wiki('Absolute value', 'Absolute_value')],
+  'square-root': [wiki('Square root', 'Square_root')],
+  'reciprocal-function': [wiki('Multiplicative inverse', 'Multiplicative_inverse'), wiki('Hyperbola', 'Hyperbola')],
+  'exponential-function': [wiki('Exponential function', 'Exponential_function')],
+  logarithm: [wiki('Logarithm', 'Logarithm'), wiki('Natural logarithm', 'Natural_logarithm')],
+  sine: [wiki('Sine and cosine', 'Sine_and_cosine')],
+  cosine: [wiki('Sine and cosine', 'Sine_and_cosine')],
+  tangent: [wiki('Trigonometric functions', 'Trigonometric_functions')],
+  circle: [wiki('Circle', 'Circle')],
+  inequality: [wiki('Linear inequality', 'Linear_inequality')],
+  'polar-rose': [wiki('Rose (mathematics)', 'Rose_(mathematics)'), wiki('Polar coordinate system', 'Polar_coordinate_system')],
+  'determinant-calculator': [wiki('Determinant', 'Determinant')],
+  'inverse-matrix-calculator': [wiki('Invertible matrix', 'Invertible_matrix')],
+  'rref-calculator': [wiki('Row echelon form', 'Row_echelon_form'), wiki('Gaussian elimination', 'Gaussian_elimination')],
+  'matrix-multiplication-calculator': [wiki('Matrix multiplication', 'Matrix_multiplication')],
+  'system-of-equations-solver': [wiki('System of linear equations', 'System_of_linear_equations')],
+  'log-calculator': [wiki('Logarithm', 'Logarithm')],
+  'square-root-calculator': [wiki('Square root', 'Square_root')],
+  'trig-calculator': [wiki('Trigonometric functions', 'Trigonometric_functions')],
+  'factorial-calculator': [wiki('Factorial', 'Factorial')],
+  'percentage-calculator': [wiki('Percentage', 'Percentage')],
+};
+
+for (const g of GUIDES) {
+  g.figure = FIGURES[g.slug];
+  g.learnMore = LEARN_MORE[g.slug];
+}
+
+/** Published path of a guide's illustration. */
+export const figurePath = (g: GuidePage): string => `/images/graphs/${g.slug}.svg`;
+
+export const guideBySlug =(slug: string): GuidePage | undefined => GUIDES.find((g) => g.slug === slug);

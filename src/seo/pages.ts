@@ -12,8 +12,8 @@ export const OG_IMAGE = `${SITE_URL}/og-image.png`;
  * Bump it only when page text actually changes: a date that changes on every
  * deploy teaches search engines to ignore it.
  */
-export const CONTENT_UPDATED = '2026-10-23';
-import { GUIDES, type GuideGroup, type GuidePage } from './guides';
+export const CONTENT_UPDATED = '2026-10-26';
+import { GUIDES, figurePath, type GuideGroup, type GuidePage } from './guides';
 
 export const CREATOR = { name: 'Aalok', email: 'aalok.builds@gmail.com' };
 
@@ -349,6 +349,12 @@ export function jsonLd(p: SitePage): object[] {
       isPartOf: { '@type': 'WebSite', name: SITE_NAME, url: `${SITE_URL}/` },
       author: creatorLd,
     };
+    if (p.figure) {
+      const img = { '@type': 'ImageObject', url: `${SITE_URL}${figurePath(p)}`, caption: p.figure.caption, width: 640, height: 400 };
+      page.image = [img, OG_IMAGE];
+      page.primaryImageOfPage = img;
+    }
+    if (p.learnMore) page.citation = p.learnMore.map((l) => ({ '@type': 'CreativeWork', name: l.name, url: l.url }));
     if (p.listGroup) {
       const items = GUIDES.filter((g) => g.group === p.listGroup && !g.listGroup);
       page.mainEntity = {
@@ -474,6 +480,11 @@ export function contentHtml(p: SitePage): string {
   ${crumbsHtml(p)}
   <h1>${esc(p.h1)}</h1>
   <p class="seo-lead">${esc(p.lead)}</p>
+  ${
+    p.figure
+      ? `<figure class="seo-figure"><img src="${figurePath(p)}" alt="${esc(p.figure.alt)}" width="640" height="400" loading="lazy" decoding="async"><figcaption>${esc(p.figure.caption)}</figcaption></figure>`
+      : ''
+  }
   ${list.length ? `<section><h2>All graphs</h2>${linkList(list)}</section>` : ''}
   ${facts}
   ${p.sections.map((s) => `<section><h2>${esc(s.h2)}</h2>${s.p.map((t) => `<p>${esc(t)}</p>`).join('')}</section>`).join('\n  ')}
@@ -485,6 +496,13 @@ export function contentHtml(p: SitePage): string {
     <h2>Frequently asked questions</h2>
     ${faqHtml(p.faq)}
   </section>
+  ${
+    p.learnMore
+      ? `<section><h2>Learn more</h2><ul>${p.learnMore
+          .map((l) => `<li><a href="${l.url}" rel="noopener" target="_blank">${esc(l.name)}</a></li>`)
+          .join('')}</ul></section>`
+      : ''
+  }
   ${related.length ? `<section><h2>Related</h2>${linkList(related)}</section>` : ''}
   <section>
     <h2>Free calculators</h2>

@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest';
 import { analyzeExpressions, evaluateLatex } from '../math';
 import { safeEvaluate } from '../matrix/expr';
 import { MatrixError, formatNum, parseNum, type Matrix } from '../matrix/linalg';
+import { graphSvg } from './graphImage';
 import { GUIDES, type GuidePage } from './guides';
 import { ALL_PAGES, breadcrumbs, jsonLd, pageByPath } from './pages';
 
@@ -80,5 +81,26 @@ describe('matrix guide presets', () => {
     if (!r.ok) return;
     const got = r.value.kind === 'scalar' ? formatNum(r.value.v) : r.value.m.map((row) => row.map(formatNum));
     expect(got).toEqual(expected[slug]);
+  });
+});
+
+describe('guide illustrations and references', () => {
+  it('every graph guide has an image with alt text that draws its curves', () => {
+    for (const g of byGroup('graphs')) {
+      expect(g.figure?.alt.length ?? 0, g.slug).toBeGreaterThan(40);
+      const p = g.preset as GraphPreset & { viewport?: Parameters<typeof graphSvg>[1] };
+      const svg = graphSvg(p.expressions.map((e) => e.latex), p.viewport);
+      expect(svg.startsWith('<svg'), g.slug).toBe(true);
+      // At least one curve stroke in the first palette color.
+      expect(svg, g.slug).toContain('stroke="#5b4fe0" stroke-width="3"');
+      expect(svg, g.slug).not.toContain('NaN');
+    }
+  });
+
+  it('every guide links to further reading on Wikipedia', () => {
+    for (const g of GUIDES) {
+      expect(g.learnMore?.length ?? 0, g.slug).toBeGreaterThan(0);
+      for (const l of g.learnMore!) expect(l.url, g.slug).toMatch(/^https:\/\/en\.wikipedia\.org\/wiki\/[A-Za-z_()]+$/);
+    }
   });
 });

@@ -3,7 +3,8 @@ import { VitePWA } from 'vite-plugin-pwa';
 import {
   ALL_PAGES, CONTENT_UPDATED, CREATOR, PAGES, SITE_URL, canonicalUrl, contentHtml, headHtml, isGuide, type SitePage,
 } from './src/seo/pages';
-import { GUIDES } from './src/seo/guides';
+import { GUIDES, figurePath, type GuidePage } from './src/seo/guides';
+import { graphSvg } from './src/seo/graphImage';
 import { bootHtml } from './src/shell/chrome';
 
 const HEAD = /<!--seo:head(?::start-->[\s\S]*?<!--seo:head:end)?-->/;
@@ -39,6 +40,12 @@ function notFoundPage(homeHtml: string): string {
   <ul class="seo-links">${links}</ul>
 </div></article>`,
     );
+}
+
+/** SVG illustration of a graph guide's preset (its equations and viewport). */
+function guideSvg(g: GuidePage): string {
+  const preset = g.preset as { expressions: { latex: string }[]; viewport?: Parameters<typeof graphSvg>[1] };
+  return graphSvg(preset.expressions.map((e) => e.latex), preset.viewport);
 }
 
 /** llms.txt: a plain summary of every page for AI assistants, built from the same data. */
@@ -93,16 +100,22 @@ function seoPages(): Plugin {
       }
       this.emitFile({ type: 'asset', fileName: '404.html', source: notFoundPage(html) });
       this.emitFile({ type: 'asset', fileName: 'llms.txt', source: llmsTxt() });
+      // Graph guide illustrations, drawn from each guide's preset with the app's math engine.
+      for (const g of GUIDES) {
+        if (g.figure) this.emitFile({ type: 'asset', fileName: figurePath(g).slice(1), source: guideSvg(g) });
+      }
       const lastmod = CONTENT_UPDATED; // real content date, not the build date
       const priority = (p: SitePage): string => (p.path === '/' ? '1.0' : isGuide(p) ? '0.8' : '0.9');
+      const image = (p: SitePage): string =>
+        isGuide(p) && p.figure ? `<image:image><image:loc>${SITE_URL}${figurePath(p)}</image:loc></image:image>` : '';
       const urls = ALL_PAGES.map(
         (p) =>
-          `  <url><loc>${canonicalUrl(p)}</loc><lastmod>${lastmod}</lastmod><changefreq>weekly</changefreq><priority>${priority(p)}</priority></url>`,
+          `  <url><loc>${canonicalUrl(p)}</loc><lastmod>${lastmod}</lastmod><changefreq>weekly</changefreq><priority>${priority(p)}</priority>${image(p)}</url>`,
       ).join('\n');
       this.emitFile({
         type: 'asset',
         fileName: 'sitemap.xml',
-        source: `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`,
+        source: `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n${urls}\n</urlset>\n`,
       });
     } },
   };
