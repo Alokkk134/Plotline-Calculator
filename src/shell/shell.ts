@@ -98,6 +98,8 @@ export function createShell(root: HTMLElement): void {
     // A copy, so edits in the calculator never change the guide's data.
     if (preset !== undefined) active!.setState(JSON.parse(JSON.stringify(preset)));
     applySeo(p);
+    // About and Privacy are for reading: open at the text, not the calculator.
+    if (isGuide(p) && p.textPage) document.getElementById('seo')?.scrollIntoView();
   };
 
   /** Go to a page and update the address bar (no page reload). */
@@ -116,7 +118,7 @@ export function createShell(root: HTMLElement): void {
     if (!page) return;
     e.preventDefault();
     navigate(page);
-    if (!a.closest('.topbar')) window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (!a.closest('.topbar') && !(isGuide(page) && page.textPage)) window.scrollTo({ top: 0, behavior: 'smooth' });
   });
 
   show(first);

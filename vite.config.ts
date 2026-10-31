@@ -1,7 +1,7 @@
 import { defineConfig, type Plugin } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 import {
-  ALL_PAGES, CONTENT_UPDATED, CREATOR, PAGES, SITE_URL, canonicalUrl, contentHtml, headHtml, isGuide, type SitePage,
+  ALL_PAGES, CREATOR, PAGES, SITE_URL, canonicalUrl, contentHtml, headHtml, isGuide, pageUpdated, type SitePage,
 } from './src/seo/pages';
 import { GUIDES, figurePath, type GuidePage } from './src/seo/guides';
 import { graphSvg } from './src/seo/graphImage';
@@ -24,7 +24,7 @@ const htmlEsc = (s: string): string => s.replace(/&/g, '&amp;').replace(/</g, '&
 
 /** 404 page: the graphing calculator still works, plus links back into the site. Not indexed. */
 function notFoundPage(homeHtml: string): string {
-  const links = [...PAGES, ...GUIDES.filter((g) => g.listGroup || g.group !== 'graphs').slice(0, 8)]
+  const links = [...PAGES, ...GUIDES.filter((g) => g.listGroup || (g.group !== 'graphs' && g.group !== 'site')).slice(0, 8)]
     .map((p) => `<li><a href="${p.path}">${htmlEsc(p.label)}</a></li>`)
     .join('');
   return homeHtml
@@ -63,6 +63,7 @@ ${group('Calculators', PAGES)}
 ${group('Graph guides', [GUIDES.find((g) => g.listGroup === 'graphs')!, ...guides('graphs')])}
 ${group('Matrix tools', guides('matrix'))}
 ${group('Scientific and basic tools', [...guides('scientific'), ...guides('basic')])}
+${group('About Plotline', guides('site'))}
 ## Quick answers
 
 - Price: free, no account, no ads in the calculators.
@@ -104,13 +105,12 @@ function seoPages(): Plugin {
       for (const g of GUIDES) {
         if (g.figure) this.emitFile({ type: 'asset', fileName: figurePath(g).slice(1), source: guideSvg(g) });
       }
-      const lastmod = CONTENT_UPDATED; // real content date, not the build date
       const priority = (p: SitePage): string => (p.path === '/' ? '1.0' : isGuide(p) ? '0.8' : '0.9');
       const image = (p: SitePage): string =>
         isGuide(p) && p.figure ? `<image:image><image:loc>${SITE_URL}${figurePath(p)}</image:loc></image:image>` : '';
       const urls = ALL_PAGES.map(
         (p) =>
-          `  <url><loc>${canonicalUrl(p)}</loc><lastmod>${lastmod}</lastmod><changefreq>weekly</changefreq><priority>${priority(p)}</priority>${image(p)}</url>`,
+          `  <url><loc>${canonicalUrl(p)}</loc><lastmod>${pageUpdated(p)}</lastmod><changefreq>weekly</changefreq><priority>${priority(p)}</priority>${image(p)}</url>`,
       ).join('\n');
       this.emitFile({
         type: 'asset',

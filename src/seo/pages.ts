@@ -9,10 +9,11 @@ export const SITE_NAME = 'Plotline';
 export const OG_IMAGE = `${SITE_URL}/og-image.png`;
 /**
  * When page content last changed (sitemap <lastmod>, guides' dateModified).
- * Bump it only when page text actually changes: a date that changes on every
- * deploy teaches search engines to ignore it.
+ * Bump these only when page text actually changes: a date that changes on every
+ * deploy teaches search engines to ignore it. A page's own `updated` wins.
  */
-export const CONTENT_UPDATED = '2026-10-26';
+const GUIDES_UPDATED = '2026-10-26';
+const HUBS_UPDATED = '2026-10-23';
 import { GUIDES, figurePath, type GuideGroup, type GuidePage } from './guides';
 
 export const CREATOR = { name: 'Aalok', email: 'aalok.builds@gmail.com' };
@@ -54,6 +55,8 @@ export interface PageSeo {
   /** Example inputs shown on the page. */
   examples: { input: string; result: string }[];
   faq: FaqItem[];
+  /** Date this page changed, when it differs from the other hubs. */
+  updated?: string;
 }
 
 const COMMON_FAQ: FaqItem[] = [
@@ -76,9 +79,10 @@ export const PAGES: PageSeo[] = [
     id: 'graphing',
     path: '/',
     file: 'index.html',
-    // Brand first on the home page (like "Desmos | Beautiful free math.") so a
-    // search for "plotline" matches strongly; sub-pages lead with their keyword.
-    title: 'Plotline | Free Online Graphing Calculator',
+    // Keyword first like every other page; a search for "plotline" still
+    // matches through the brand at the end and the WebSite structured data.
+    title: 'Free Online Graphing Calculator | Plotline',
+    updated: '2026-11-01',
     description:
       'Graph functions, circles, inequalities, polar and parametric equations instantly. Free online graphing calculator with sliders and examples. No sign-up.',
     h1: 'Free Online Graphing Calculator',
@@ -289,6 +293,8 @@ export const pageByPath = (path: string): SitePage | undefined => {
   const clean = path.replace(/\/index\.html$/, '/').replace(/\.html$/, '').replace(/\/+$/, '') || '/';
   return ALL_PAGES.find((p) => p.path === clean);
 };
+/** When this page's content last changed. */
+export const pageUpdated = (p: SitePage): string => p.updated ?? (isGuide(p) ? GUIDES_UPDATED : HUBS_UPDATED);
 export const canonicalUrl = (p: SitePage): string => (p.path === '/' ? `${SITE_URL}/` : `${SITE_URL}${p.path}`);
 
 /** Where each group of guides lives (breadcrumb parent). */
@@ -297,6 +303,7 @@ const GROUP_PARENT: Record<GuideGroup, string> = {
   matrix: '/matrix-calculator',
   scientific: '/scientific-calculator',
   basic: '/basic-calculator',
+  site: '/',
 };
 
 /** Breadcrumb trail from the home page to `p`. */
@@ -309,7 +316,7 @@ export function breadcrumbs(p: SitePage): { name: string; url: string }[] {
   return parent && parent.path !== '/' ? [home, { name: parent.label, url: canonicalUrl(parent) }, self] : [home, self];
 }
 
-const guidesFor = (calc: PageId): GuidePage[] => GUIDES.filter((g) => g.calc === calc && !g.listGroup);
+const guidesFor = (calc: PageId): GuidePage[] => GUIDES.filter((g) => g.calc === calc && !g.listGroup && g.group !== 'site');
 
 const esc = (s: string): string =>
   s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -338,7 +345,7 @@ export function jsonLd(p: SitePage): object[] {
   if (isGuide(p)) {
     const page: Record<string, unknown> = {
       '@context': 'https://schema.org',
-      '@type': p.listGroup ? 'CollectionPage' : ['WebPage', 'LearningResource'],
+      '@type': p.listGroup ? 'CollectionPage' : p.slug === 'about' ? 'AboutPage' : p.group === 'site' ? 'WebPage' : ['WebPage', 'LearningResource'],
       '@id': `${url}#page`,
       name: p.h1,
       url,
@@ -361,12 +368,14 @@ export function jsonLd(p: SitePage): object[] {
         '@type': 'ItemList',
         itemListElement: items.map((g, i) => ({ '@type': 'ListItem', position: i + 1, name: g.label, url: canonicalUrl(g) })),
       };
+    } else if (p.group === 'site') {
+      page.dateModified = pageUpdated(p);
     } else {
       page.learningResourceType = 'Interactive tool';
       page.educationalLevel = 'High school, College';
       page.about = { '@type': 'Thing', name: p.label };
       page.teaches = p.lead;
-      page.dateModified = CONTENT_UPDATED;
+      page.dateModified = pageUpdated(p);
     }
     return [page, faq, breadcrumbLd];
   }
@@ -487,11 +496,21 @@ export function contentHtml(p: SitePage): string {
   }
   ${list.length ? `<section><h2>All graphs</h2>${linkList(list)}</section>` : ''}
   ${facts}
+  ${
+    p.table
+      ? `<section><h2>${esc(p.table.h2)}</h2><div class="seo-table"><table><thead><tr>${p.table.head
+          .map((c) => `<th scope="col">${esc(c)}</th>`)
+          .join('')}</tr></thead><tbody>${p.table.rows
+          .map((r) => `<tr>${r.map((c, i) => (i ? `<td>${esc(c)}</td>` : `<th scope="row">${esc(c)}</th>`)).join('')}</tr>`)
+          .join('')}</tbody></table></div></section>`
+      : ''
+  }
   ${p.sections.map((s) => `<section><h2>${esc(s.h2)}</h2>${s.p.map((t) => `<p>${esc(t)}</p>`).join('')}</section>`).join('\n  ')}
-  <section>
-    <h2>How to use it in Plotline</h2>
-    <ol>${p.steps.map((s) => `<li>${esc(s)}</li>`).join('')}</ol>
-  </section>
+  ${
+    p.steps.length
+      ? `<section><h2>How to use it in Plotline</h2><ol>${p.steps.map((s) => `<li>${esc(s)}</li>`).join('')}</ol></section>`
+      : ''
+  }
   <section>
     <h2>Frequently asked questions</h2>
     ${faqHtml(p.faq)}

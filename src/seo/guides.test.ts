@@ -98,7 +98,7 @@ describe('guide illustrations and references', () => {
   });
 
   it('every guide links to further reading on Wikipedia', () => {
-    for (const g of GUIDES) {
+    for (const g of GUIDES.filter((x) => x.group !== 'site')) {
       expect(g.learnMore?.length ?? 0, g.slug).toBeGreaterThan(0);
       for (const l of g.learnMore!) expect(l.url, g.slug).toMatch(/^https:\/\/en\.wikipedia\.org\/wiki\/[A-Za-z_()]+$/);
     }

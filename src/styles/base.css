@@ -63,6 +63,7 @@ html, body {
 .seo-content h1 { font-size: 28px; line-height: 1.25; letter-spacing: -0.01em; margin: 0 0 12px; }
 .seo-content h2 { font-size: 19px; margin: 32px 0 10px; }
 .seo-lead { font-size: 16.5px; color: var(--text); margin: 0; }
+.seo-table { overflow-x: auto; }
 .seo-figure { margin: 0; }
 .seo-figure img { display: block; width: 100%; max-width: 640px; height: auto; border: 1px solid var(--border); border-radius: var(--radius); background: #fcfcff; }
 .seo-figure figcaption { margin-top: 8px; font-size: 13px; color: var(--text-muted); }

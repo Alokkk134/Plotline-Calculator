@@ -5,7 +5,7 @@
 // the build can pre-render every page into static HTML.
 import type { FaqItem, PageId } from './pages';
 
-export type GuideGroup = 'graphs' | 'matrix' | 'scientific' | 'basic';
+export type GuideGroup = 'graphs' | 'matrix' | 'scientific' | 'basic' | 'site';
 
 export interface GuidePage {
   slug: string;
@@ -40,6 +40,12 @@ export interface GuidePage {
   figure?: { alt: string; caption: string };
   /** Trusted references for further reading. */
   learnMore?: { name: string; url: string }[];
+  /** A table with its own heading (comparison pages). */
+  table?: { h2: string; head: string[]; rows: string[][] };
+  /** Opens scrolled to the text instead of the calculator (About, Privacy). */
+  textPage?: boolean;
+  /** Date this page changed, when it differs from the other guides. */
+  updated?: string;
 }
 
 // ---- preset helpers ---------------------------------------------------------
@@ -1014,6 +1020,172 @@ export const GUIDES: GuidePage[] = [
     ],
     related: ['factorial-calculator', 'square-root-calculator', 'log-calculator'],
     preset: sci('15\\%\\times240'),
+  },
+
+  // ======================= ABOUT THE SITE =======================
+  {
+    slug: 'desmos-alternative', path: '/desmos-alternative', file: 'desmos-alternative.html', calc: 'graphing', group: 'site',
+    title: 'Desmos Alternative – Free Online Graphing Calculator | Plotline',
+    description:
+      'Looking for a Desmos alternative? Plotline is a free graphing, scientific and matrix calculator with no sign-up. See what it does and where Desmos does more.',
+    h1: 'A Free Desmos Alternative: Plotline Compared',
+    lead:
+      'Plotline is a free alternative to Desmos for everyday graphing and calculation: it plots equations, inequalities and polar curves with sliders, needs no account, and works offline, but it has no 3D, geometry or classroom tools.',
+    label: 'Desmos alternative',
+    facts: [],
+    table: {
+      h2: 'Plotline and Desmos side by side',
+      head: ['Feature', 'Plotline', 'Desmos'],
+      rows: [
+        ['Price', 'Free', 'Free'],
+        ['Graphing equations, inequalities, polar and parametric curves', 'Yes', 'Yes'],
+        ['Sliders', 'Yes', 'Yes'],
+        ['Scientific, four-function and matrix calculators', 'Yes', 'Yes'],
+        ['Saving graphs', 'In your browser, no account', 'With a free account'],
+        ['Sharing a graph', 'By link', 'By link'],
+        ['Install and offline use', 'Installs from the browser and works offline', 'Mobile apps'],
+        ['3D graphing and geometry', 'Not available', 'Available'],
+        ['Tables and regressions', 'Not available', 'Available'],
+        ['Classroom activities', 'Not available', 'Available'],
+        ['Exam use', 'Not designed for exams', 'Test mode, and built into the digital SAT'],
+      ],
+    },
+    sections: [
+      {
+        h2: 'When Plotline is a good fit',
+        p: [
+          'Plotline suits students who want to open a calculator and start straight away. There is nothing to sign up for, saved graphs stay in your own browser, and the on-screen keypad and one-click examples help if you have never used a graphing calculator before.',
+          'Every calculator and guide also works after the first visit without an internet connection, and the site can be installed on a phone or computer like an app.',
+        ],
+      },
+      {
+        h2: 'When Desmos is the better choice',
+        p: [
+          'Use Desmos if you need 3D graphs, geometry constructions, data tables or regressions, or if your teacher runs class activities on it. If you are preparing for an exam that includes Desmos, practice on Desmos itself so that you know the exact tool you will use on test day.',
+        ],
+      },
+    ],
+    steps: [],
+    faq: [
+      {
+        q: 'Is Plotline the same as Desmos?',
+        a: 'No. Plotline is an independent project with its own design and code. It is not affiliated with or endorsed by Desmos.',
+      },
+      {
+        q: 'Do I need an account to save my graphs?',
+        a: 'No. Plotline saves graphs in your browser on your device. To move them to another device, export them as a file or share a link.',
+      },
+      {
+        q: 'Can I use Plotline in an exam?',
+        a: 'Plotline is not designed or approved for exams. Check your exam rules, which often require a specific calculator.',
+      },
+      FREE,
+    ],
+    related: ['graphs', 'sine', 'parabola'],
+    updated: '2026-11-01',
+  },
+  {
+    slug: 'about', path: '/about', file: 'about.html', calc: 'graphing', group: 'site',
+    title: 'About Plotline – Free Calculators Made by Aalok',
+    description:
+      'Plotline is an independent project by Aalok: free graphing, scientific, basic and matrix calculators for students, with no sign-up. Learn why it exists.',
+    h1: 'About Plotline',
+    lead:
+      'Plotline is an independent project made by Aalok: a free set of graphing, scientific, basic and matrix calculators that anyone can use in a browser without signing up.',
+    label: 'About',
+    facts: [],
+    sections: [
+      {
+        h2: 'Why Plotline exists',
+        p: [
+          'Plotline was built to be easy for someone using a graphing calculator for the first time. Each calculator has a keypad for typing math, and worked examples are one click away, so you can start from something that works and change it.',
+        ],
+      },
+      {
+        h2: 'How it works',
+        p: [
+          'The calculators run in your browser, so there is no account and nothing to install. Graphs you save stay on your device, and the site can be installed as an app that works offline.',
+          'Each guide opens the matching calculator with its example already loaded. The example answers are checked by automated tests against Plotline’s own math engine, and each guide links to further reading.',
+        ],
+      },
+      {
+        h2: 'Contact',
+        p: ['Questions, ideas, or found a mistake? Email aalok.builds@gmail.com.'],
+      },
+    ],
+    steps: [],
+    faq: [
+      {
+        q: 'Who made Plotline?',
+        a: 'Plotline is an independent project made by Aalok. You can reach Aalok at aalok.builds@gmail.com.',
+      },
+      {
+        q: 'Is Plotline connected to Desmos, Texas Instruments or Casio?',
+        a: 'No. Plotline is independent and is not affiliated with any of them.',
+      },
+      FREE,
+    ],
+    related: ['desmos-alternative', 'privacy'],
+    textPage: true,
+    updated: '2026-11-01',
+  },
+  {
+    slug: 'privacy', path: '/privacy', file: 'privacy.html', calc: 'graphing', group: 'site',
+    title: 'Privacy Policy | Plotline',
+    description:
+      'How Plotline handles your data: no accounts, graphs saved only on your device, and analytics from Google Analytics and Vercel to count visits.',
+    h1: 'Privacy Policy',
+    lead:
+      'Plotline has no accounts and does not ask for your name or email; saved graphs stay on your device, and analytics tools count visits so we can see how the site is used.',
+    label: 'Privacy',
+    facts: [],
+    sections: [
+      {
+        h2: 'Your calculations and saved graphs',
+        p: [
+          'Calculations run in your browser. When you press Save, the graph is stored in your browser’s local storage on your device, and Plotline does not upload it. Clearing your site data for tryplotline.xyz removes it.',
+          'A share link contains your graph inside the link itself, so anyone who has the link can open that graph.',
+        ],
+      },
+      {
+        h2: 'Analytics',
+        p: [
+          'Plotline uses Google Analytics to understand how visitors use the site, such as which pages are viewed and roughly where visitors come from. Google Analytics uses cookies and its data is processed by Google under its own privacy policy. You can opt out with Google’s browser add-on at tools.google.com/dlpage/gaoptout.',
+          'Plotline also uses Vercel Web Analytics and Speed Insights to count visits and measure page speed.',
+        ],
+      },
+      {
+        h2: 'Hosting',
+        p: [
+          'The site is hosted by Vercel, which handles the requests your browser makes to load it, and these may be logged for security and reliability.',
+        ],
+      },
+      {
+        h2: 'Offline use',
+        p: ['Plotline keeps a copy of the site in your browser so that it works offline. This copy contains the site’s own files, not personal data.'],
+      },
+      {
+        h2: 'Contact',
+        p: [
+          'If you email Plotline, your address and message are used only to reply. For any privacy question or request, email aalok.builds@gmail.com.',
+          'Last updated: November 1, 2026.',
+        ],
+      },
+    ],
+    steps: [],
+    faq: [
+      {
+        q: 'Do I need to give Plotline any personal information?',
+        a: 'No. There is no sign-up, and the calculators work without giving your name or email.',
+      },
+      {
+        q: 'Are my saved graphs uploaded?',
+        a: 'No. Saved graphs stay in your browser on your device unless you choose to share or export them.',
+      },
+    ],
+    related: ['about'],
+    textPage: true,
+    updated: '2026-11-01',
   },
 ];
 
