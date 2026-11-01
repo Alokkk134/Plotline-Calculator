@@ -105,7 +105,8 @@ export const GUIDES: GuidePage[] = [
     faq: [
       {
         q: 'Which graphs can I open here?',
-        a: 'Linear equations, parabolas, cubic functions, absolute value, square root, reciprocal (1/x), exponential, logarithm, sine, cosine, tangent, circles, inequalities and polar rose curves.',
+        a: 
+          'Linear equations, parabolas, cubic functions, absolute value, square root, reciprocal (1/x), exponential, logarithm, sine, cosine, tangent, circles, inequalities and polar rose curves. Each one opens in the graphing calculator with the equation already plotted and ready to edit.',
       },
       FREE,
     ],
@@ -130,14 +131,14 @@ export const GUIDES: GuidePage[] = [
     ],
     sections: [
       {
-        h2: 'What the slope and intercept do',
+        h2: 'What do the slope and the intercept do?',
         p: [
           'The slope m says how steep the line is: for every 1 step right, the line goes up m steps. A positive slope rises from left to right, a negative slope falls, and m = 0 gives a horizontal line.',
           'The y-intercept b moves the whole line up or down without changing its steepness.',
         ],
       },
       {
-        h2: 'Parallel and perpendicular lines',
+        h2: 'How do you find parallel and perpendicular lines?',
         p: [
           'Parallel lines have the same slope, such as y = 2x + 1 and y = 2x − 3. Perpendicular lines have slopes that multiply to −1, such as y = 2x and y = −½x.',
         ],
@@ -177,13 +178,13 @@ export const GUIDES: GuidePage[] = [
     ],
     sections: [
       {
-        h2: 'Reading the discriminant',
+        h2: 'What does the discriminant tell you?',
         p: [
           'The discriminant b² − 4ac tells you how many times the parabola crosses the x-axis: two real roots if it is positive, one (the vertex touches the axis) if it is zero, and none if it is negative.',
         ],
       },
       {
-        h2: 'Vertex form',
+        h2: 'What is vertex form?',
         p: [
           'Written as y = a(x − h)² + k, the vertex is simply (h, k). Changing h slides the parabola left and right, k moves it up and down, and a makes it narrower or wider.',
         ],
@@ -222,7 +223,7 @@ export const GUIDES: GuidePage[] = [
     ],
     sections: [
       {
-        h2: 'Shape of a cubic',
+        h2: 'What shape is a cubic graph?',
         p: [
           'y = x³ always increases and flattens out at the origin, its inflection point. Adding an x term, as in y = x³ − 3x, creates a hill and a valley before the curve continues upward.',
           'A negative leading coefficient flips the graph: it rises on the left and falls on the right.',
@@ -258,7 +259,7 @@ export const GUIDES: GuidePage[] = [
     ],
     sections: [
       {
-        h2: 'Why the graph is a V',
+        h2: 'Why is the graph a V shape?',
         p: [
           '|x| leaves positive numbers unchanged and turns negative numbers positive, so the left half of the line y = x is reflected above the x-axis.',
         ],
@@ -292,7 +293,7 @@ export const GUIDES: GuidePage[] = [
     ],
     sections: [
       {
-        h2: 'Shifting the square root graph',
+        h2: 'How do you shift the square root graph?',
         p: [
           'y = √(x − h) + k starts at the point (h, k) instead of the origin. A minus sign outside, y = −√x, flips the curve below the x-axis.',
         ],
@@ -302,7 +303,8 @@ export const GUIDES: GuidePage[] = [
     faq: [
       {
         q: 'Why does y = √x stop at x = 0?',
-        a: 'The square root of a negative number is not a real number, so the graph has no points for x < 0.',
+        a: 
+          'Because the square root of a negative number is not a real number, so there are no points to the left of the origin. The domain is x ≥ 0 and the range is y ≥ 0, which is why the curve starts at (0, 0) and only rises to the right.',
       },
       FREE,
     ],
@@ -362,7 +364,7 @@ export const GUIDES: GuidePage[] = [
     ],
     sections: [
       {
-        h2: 'The number e',
+        h2: 'What is the number e?',
         p: [
           'e ≈ 2.718 is the natural base. y = eˣ is the only exponential whose slope at every point equals its own height, which is why it appears in growth, interest and calculus.',
         ],
@@ -397,7 +399,7 @@ export const GUIDES: GuidePage[] = [
     ],
     sections: [
       {
-        h2: 'ln versus log',
+        h2: 'What is the difference between ln and log?',
         p: [
           'ln(x) is the natural logarithm, base e ≈ 2.718. log(x) usually means base 10. Any base can be written with either: log_b(x) = ln(x) ÷ ln(b).',
         ],
@@ -433,7 +435,7 @@ export const GUIDES: GuidePage[] = [
     ],
     sections: [
       {
-        h2: 'Amplitude and period',
+        h2: 'What are amplitude and period?',
         p: [
           'In y = a·sin(bx), a stretches the wave vertically (a = 3 swings between −3 and 3) and b squeezes it horizontally, so the period becomes 2π ÷ b. Drag the sliders above to see both effects.',
         ],
@@ -443,11 +445,13 @@ export const GUIDES: GuidePage[] = [
     faq: [
       {
         q: 'What is the period of sin(2x)?',
-        a: 'The period is 2π ÷ 2 = π, so the wave repeats twice as often as sin(x).',
+        a: 
+          'π. The period of sin(bx) is 2π ÷ b, so doubling b from 1 to 2 halves the period from 2π to π. Drag the b slider above to watch the wave squeeze together as b grows.',
       },
       {
         q: 'Does the calculator use degrees or radians?',
-        a: 'The graphing calculator uses radians for the x-axis, so one full sine wave spans 0 to 2π ≈ 6.28.',
+        a: 
+          'The graph uses radians, so one full wave spans 2π ≈ 6.28 along the x-axis. The scientific calculator has its own degrees/radians switch, so you can work in degrees there when a question asks for them.',
       },
       FREE,
     ],
@@ -473,7 +477,7 @@ export const GUIDES: GuidePage[] = [
     ],
     sections: [
       {
-        h2: 'Sine and cosine together',
+        h2: 'How do sine and cosine compare?',
         p: [
           'Both waves are loaded above so you can see that cosine reaches each peak a quarter of a period (π/2) before sine does.',
         ],
@@ -483,7 +487,8 @@ export const GUIDES: GuidePage[] = [
     faq: [
       {
         q: 'Is cosine an even or odd function?',
-        a: 'Even: cos(−x) = cos(x), so the graph is symmetric about the y-axis. Sine is odd.',
+        a: 
+          'Cosine is even: cos(−x) = cos(x), so the graph is a mirror image across the y-axis. Sine is odd: sin(−x) = −sin(x), so its graph has rotational symmetry about the origin instead.',
       },
       FREE,
     ],
@@ -508,7 +513,7 @@ export const GUIDES: GuidePage[] = [
     ],
     sections: [
       {
-        h2: 'Why tangent has asymptotes',
+        h2: 'Why does tangent have asymptotes?',
         p: [
           'tan(x) = sin(x) ÷ cos(x), so wherever cos(x) = 0 the value blows up to +∞ or −∞. Plotline breaks the curve at each asymptote instead of drawing false vertical lines.',
         ],
@@ -518,7 +523,8 @@ export const GUIDES: GuidePage[] = [
     faq: [
       {
         q: 'What is the period of tan(x)?',
-        a: 'π (180°), half the period of sine and cosine.',
+        a: 
+          'π, or 180°, which is half the period of sine and cosine. The graph repeats every π units, with a vertical asymptote at x = π/2 and then at every π after that.',
       },
       FREE,
     ],
@@ -542,7 +548,7 @@ export const GUIDES: GuidePage[] = [
     ],
     sections: [
       {
-        h2: 'Graphing equations that are not functions',
+        h2: 'How do you graph an equation that is not a function?',
         p: [
           'A circle fails the vertical line test, so it cannot be written as y = f(x). Plotline graphs any equation in x and y directly, so you can type the circle exactly as it is written.',
         ],
@@ -552,7 +558,8 @@ export const GUIDES: GuidePage[] = [
     faq: [
       {
         q: 'How do I find the radius from the equation?',
-        a: 'Take the square root of the number on the right. For x² + y² = 25 the radius is √25 = 5.',
+        a: 
+          'Compare the equation with (x − h)² + (y − k)² = r². The number on the right is r², so take its square root: in x² + y² = 16, r² = 16 and the radius is 4, centred on the origin.',
       },
       FREE,
     ],
@@ -576,7 +583,7 @@ export const GUIDES: GuidePage[] = [
     ],
     sections: [
       {
-        h2: 'Checking a point',
+        h2: 'How do you know which side to shade?',
         p: [
           'To check which side to shade, substitute a test point such as (0, 0). For y > x² − 3, 0 > −3 is true, so the region containing the origin is shaded.',
         ],
@@ -586,7 +593,8 @@ export const GUIDES: GuidePage[] = [
     faq: [
       {
         q: 'How do I type ≥ or ≤?',
-        a: 'Type >= or <=, or use the ≥ and ≤ keys on the keypad.',
+        a: 
+          'Type >= or <= and Plotline turns it into ≥ or ≤ as you type, or tap the symbol on the keypad. A strict > or < draws a dashed boundary, showing that points on the line itself are not included.',
       },
       FREE,
     ],
@@ -610,7 +618,7 @@ export const GUIDES: GuidePage[] = [
     ],
     sections: [
       {
-        h2: 'Typing polar equations',
+        h2: 'How do you type a polar equation?',
         p: [
           'Start the equation with r = and use θ (type "theta" or use the θ key). Plotline sweeps θ from 0 to 2π to draw the whole curve.',
         ],
@@ -620,7 +628,8 @@ export const GUIDES: GuidePage[] = [
     faq: [
       {
         q: 'How many petals does r = 2 sin(3θ) have?',
-        a: '3 petals, because n = 3 is odd. Each petal has length 2.',
+        a: 
+          'Three. For r = a·sin(kθ) the rose has k petals when k is odd and 2k petals when k is even, so sin(3θ) gives 3 petals and sin(4θ) gives 8. The value of a sets how long each petal is.',
       },
       FREE,
     ],
@@ -647,7 +656,7 @@ export const GUIDES: GuidePage[] = [
     ],
     sections: [
       {
-        h2: 'What the determinant means',
+        h2: 'What does the determinant mean?',
         p: [
           'Geometrically, the determinant is the factor by which the matrix scales area (2×2) or volume (3×3). A negative determinant means the orientation is flipped, and zero means space is flattened, which is why such a matrix cannot be inverted.',
         ],
@@ -686,7 +695,7 @@ export const GUIDES: GuidePage[] = [
     ],
     sections: [
       {
-        h2: 'Why answers are fractions',
+        h2: 'Why are the answers shown as fractions?',
         p: [
           'Inverses usually involve dividing by the determinant, so Plotline keeps exact fractions such as 3/5 instead of rounded decimals. That makes it easy to check homework answers.',
         ],
@@ -700,7 +709,8 @@ export const GUIDES: GuidePage[] = [
     faq: [
       {
         q: 'Why does my matrix have no inverse?',
-        a: 'Its determinant is 0 (the matrix is singular). This happens when one row is a multiple or combination of the others.',
+        a: 
+          'Because its determinant is 0, which makes the matrix singular. Its rows or columns are multiples of each other, so the transformation flattens space and cannot be undone. Only a square matrix with a non-zero determinant has an inverse.',
       },
       FREE,
     ],
@@ -725,7 +735,7 @@ export const GUIDES: GuidePage[] = [
     ],
     sections: [
       {
-        h2: 'Solving systems with RREF',
+        h2: 'How do you solve a system with RREF?',
         p: [
           'Write a system as an augmented matrix, with the coefficients followed by the constants, and reduce it. In the example, [[1, 2, 3], [2, 5, 8]] stands for x + 2y = 3 and 2x + 5y = 8, and the RREF reads x = −1, y = 2.',
         ],
@@ -801,7 +811,7 @@ export const GUIDES: GuidePage[] = [
     ],
     sections: [
       {
-        h2: 'Setting up the matrices',
+        h2: 'How do you set up the matrices?',
         p: [
           'For 2x + y = 5 and x + 3y = 10, A = [[2, 1], [1, 3]] holds the coefficients and B = [[5], [10]] the right-hand sides. inv(A)*B returns [[1], [3]], so x = 1 and y = 3.',
         ],
@@ -815,7 +825,8 @@ export const GUIDES: GuidePage[] = [
     faq: [
       {
         q: 'Can it solve 3 equations with 3 unknowns?',
-        a: 'Yes. Make A 3×3 and B 3×1, then enter inv(A)*B. Plotline handles up to 10 unknowns with exact fractions.',
+        a: 
+          'Yes. Enter the 3×3 coefficient matrix as A and the three constants as a 3×1 matrix B, then compute inv(A)·B. The same method works for larger systems, as long as A is square and its determinant is not 0.',
       },
       FREE,
     ],
@@ -854,11 +865,13 @@ export const GUIDES: GuidePage[] = [
     faq: [
       {
         q: 'What is log base 2 of 8?',
-        a: '3, because 2³ = 8.',
+        a: 
+          '3, because 2³ = 8. Type the base and the number into the log key and the answer appears as you type. The same pattern works for any base: log base 5 of 125 is 3, because 5³ = 125.',
       },
       {
         q: 'What is the difference between log and ln?',
-        a: 'log usually means base 10, and ln means base e ≈ 2.718 (the natural logarithm).',
+        a: 
+          'log normally means log base 10, and ln means log base e, where e ≈ 2.718. Both answer the same question — what power the base is raised to — so log(1000) = 3 and ln(e) = 1.',
       },
       FREE,
     ],
@@ -883,7 +896,7 @@ export const GUIDES: GuidePage[] = [
     ],
     sections: [
       {
-        h2: 'Simplifying square roots',
+        h2: 'How do you simplify a square root?',
         p: ['Split out perfect-square factors: √72 = √(36 × 2) = 6√2 ≈ 8.485.'],
       },
     ],
@@ -895,7 +908,8 @@ export const GUIDES: GuidePage[] = [
     faq: [
       {
         q: 'Can I take the square root of a negative number?',
-        a: 'Not as a real number: √(−4) is undefined in the reals. Cube roots of negatives are fine, though: ∛(−8) = −2.',
+        a: 
+          'Not among the real numbers, so Plotline shows an error for √(−9). In the complex numbers the answer is written 3i, where i² = −1, but Plotline works with real numbers only.',
       },
       FREE,
     ],
@@ -934,7 +948,8 @@ export const GUIDES: GuidePage[] = [
     faq: [
       {
         q: 'Why does my calculator say sin(30) = −0.988?',
-        a: 'It is in radian mode. Switch to degrees and sin(30°) = 0.5.',
+        a: 
+          'It is set to radians, so it is finding the sine of 30 radians rather than 30 degrees. Switch the angle mode to degrees and sin(30) gives 0.5. Plotline shows the current mode on the keypad.',
       },
       FREE,
     ],
@@ -959,7 +974,7 @@ export const GUIDES: GuidePage[] = [
     ],
     sections: [
       {
-        h2: 'Where factorials are used',
+        h2: 'Where are factorials used?',
         p: [
           'Factorials count arrangements: 5 books can be arranged on a shelf in 5! = 120 ways. They also appear in combinations, probability and series.',
         ],
@@ -1000,7 +1015,7 @@ export const GUIDES: GuidePage[] = [
     ],
     sections: [
       {
-        h2: 'Percentage increase and decrease',
+        h2: 'How do you find a percentage increase or decrease?',
         p: [
           'If a price rises from 80 to 100, the change is (100 − 80) ÷ 80 × 100 = 25%. If it falls from 100 to 80, the change is −20%, because the starting value is different.',
         ],
@@ -1014,7 +1029,8 @@ export const GUIDES: GuidePage[] = [
     faq: [
       {
         q: 'How do I calculate a tip?',
-        a: 'Multiply the bill by the tip percentage: a 15% tip on 60 is 15% × 60 = 9.',
+        a: 
+          'Multiply the bill by the tip percentage: a 15% tip on 60 is 15% × 60 = 9, making the total 69. For a quick 20% tip, divide the bill by 5 instead.',
       },
       FREE,
     ],
@@ -1069,7 +1085,8 @@ export const GUIDES: GuidePage[] = [
     faq: [
       {
         q: 'Is Plotline the same as Desmos?',
-        a: 'No. Plotline is an independent project with its own design and code. It is not affiliated with or endorsed by Desmos.',
+        a: 
+          'No. Plotline is an independent project with its own design and code, and is not affiliated with or endorsed by Desmos. It covers everyday graphing and calculation, while Desmos adds 3D, geometry, tables and classroom tools.',
       },
       {
         q: 'Do I need an account to save my graphs?',
@@ -1077,7 +1094,8 @@ export const GUIDES: GuidePage[] = [
       },
       {
         q: 'Can I use Plotline in an exam?',
-        a: 'Plotline is not designed or approved for exams. Check your exam rules, which often require a specific calculator.',
+        a: 
+          'Plotline is not designed or approved for exams, and most exams require a specific approved calculator. Check your exam board’s rules first, and practise on the calculator you will actually be allowed to use on the day.',
       },
       FREE,
     ],
@@ -1117,11 +1135,13 @@ export const GUIDES: GuidePage[] = [
     faq: [
       {
         q: 'Who made Plotline?',
-        a: 'Plotline is an independent project made by Aalok. You can reach Aalok at aalok.builds@gmail.com.',
+        a: 
+          'Plotline is an independent project made by Aalok, and is not affiliated with Desmos, Texas Instruments or Casio. For questions, ideas, bug reports or feedback, email aalok.builds@gmail.com.',
       },
       {
         q: 'Is Plotline connected to Desmos, Texas Instruments or Casio?',
-        a: 'No. Plotline is independent and is not affiliated with any of them.',
+        a: 
+          'No. Plotline is independent and is not affiliated with, endorsed by or connected to Desmos, Texas Instruments or Casio. Those names appear only to describe what Plotline does and does not do.',
       },
       FREE,
     ],
@@ -1176,11 +1196,13 @@ export const GUIDES: GuidePage[] = [
     faq: [
       {
         q: 'Do I need to give Plotline any personal information?',
-        a: 'No. There is no sign-up, and the calculators work without giving your name or email.',
+        a: 
+          'No. There is no sign-up and no account, and every calculator works without your name, email or any other personal detail. Analytics count visits in aggregate, and you share an email only if you choose to write in.',
       },
       {
         q: 'Are my saved graphs uploaded?',
-        a: 'No. Saved graphs stay in your browser on your device unless you choose to share or export them.',
+        a: 
+          'No. Saved graphs stay in your browser’s local storage on your device, so clearing your site data removes them. They leave your device only if you export them as a file or send someone a share link.',
       },
     ],
     related: ['about'],
@@ -1281,9 +1303,27 @@ const LEARN_MORE: Record<string, GuidePage['learnMore']> = {
   'percentage-calculator': [wiki('Percentage', 'Percentage')],
 };
 
+/**
+ * The "Is it free?" answer, written once per group. One identical answer
+ * repeated across every guide reads as filler to search engines and says less
+ * to the reader, so each group answers in terms of its own tools.
+ */
+const FREE_BY_GROUP: Record<GuideGroup, string> = {
+  graphs:
+    'Yes. The graphing calculator is free with no account and no sign-up: plot as many equations as you like, use sliders, save graphs in your browser and share them by link. It installs as an app and keeps working offline.',
+  matrix:
+    'Yes. The matrix calculator is free with no account and no sign-up, and there is no limit on how many matrices you work with. Determinants, inverses, RREF, multiplication and systems of equations are all included, and it works offline once loaded.',
+  scientific:
+    'Yes. The scientific calculator is free with no account and no sign-up, and every function is available: logs, roots, trigonometry, factorials, powers and constants. It installs as an app on a phone or computer and works offline.',
+  basic:
+    'Yes. The calculator is free with no account and no sign-up, and there are no ads inside it. It installs as an app on a phone or computer and keeps working without an internet connection after your first visit.',
+  site: 'Yes. Every Plotline calculator is free, with no account, no sign-up and no ads inside the calculators.',
+};
+
 for (const g of GUIDES) {
   g.figure = FIGURES[g.slug];
   g.learnMore = LEARN_MORE[g.slug];
+  g.faq = g.faq.map((f) => (f.q === FREE.q ? { q: f.q, a: FREE_BY_GROUP[g.group] } : f));
 }
 
 /** Published path of a guide's illustration. */

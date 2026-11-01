@@ -12,8 +12,8 @@ export const OG_IMAGE = `${SITE_URL}/og-image.png`;
  * Bump these only when page text actually changes: a date that changes on every
  * deploy teaches search engines to ignore it. A page's own `updated` wins.
  */
-const GUIDES_UPDATED = '2026-10-26';
-const HUBS_UPDATED = '2026-10-23';
+const GUIDES_UPDATED = '2026-11-01';
+const HUBS_UPDATED = '2026-11-01';
 import { GUIDES, figurePath, type GuideGroup, type GuidePage } from './guides';
 
 export const CREATOR = { name: 'Aalok', email: 'aalok.builds@gmail.com' };
@@ -23,6 +23,8 @@ const creatorLd = {
   '@id': `${SITE_URL}/#creator`,
   name: CREATOR.name,
   email: `mailto:${CREATOR.email}`,
+  description: `Independent developer and the maker of ${SITE_NAME}, a free set of calculators for students.`,
+  knowsAbout: ['Graphing calculators', 'Algebra', 'Trigonometry', 'Linear algebra', 'Mathematics education', 'Web development'],
 };
 
 export type PageId = 'graphing' | 'scientific' | 'four-function' | 'matrix';
@@ -62,7 +64,8 @@ export interface PageSeo {
 const COMMON_FAQ: FaqItem[] = [
   {
     q: 'Is Plotline free?',
-    a: 'Yes. Plotline is completely free, needs no account or sign-up, and has no ads inside the calculators.',
+    a: 
+      'Yes. Every calculator is free, with no account, no sign-up and no ads inside the calculators. There is no paid tier and nothing kept behind a login: the graphing, scientific, four-function and matrix tools are all open to everyone.',
   },
   {
     q: 'Does Plotline work offline and on phones?',
@@ -70,7 +73,8 @@ const COMMON_FAQ: FaqItem[] = [
   },
   {
     q: 'Who made Plotline?',
-    a: 'Plotline is an independent project made by Aalok. For questions, ideas or feedback, email aalok.builds@gmail.com.',
+    a: 
+      'Plotline is an independent project made by Aalok, and is not affiliated with Desmos, Texas Instruments or Casio. For questions, ideas, bug reports or feedback, email aalok.builds@gmail.com.',
   },
 ];
 
@@ -165,15 +169,18 @@ export const PAGES: PageSeo[] = [
     faq: [
       {
         q: 'How do I switch between degrees and radians?',
-        a: 'Tap the rad/deg key on the keypad. The key shows the current mode, and every trigonometric answer updates immediately.',
+        a: 
+          'Tap the rad/deg key on the keypad. The key shows the current mode, and every trigonometric answer updates immediately. In degrees sin(30) = 0.5, while in radians the same input gives about −0.988.',
       },
       {
         q: 'How do I calculate a log with a different base?',
-        a: 'Use the log_b key, then type the base and the number. For example log_2(64) = 6.',
+        a: 
+          'Use the log_b key, then type the base and the number: log_2(64) = 6. Any base works, and the plain log key is base 10 while ln is base e, so log(1000) = 3 and ln(e) = 1.',
       },
       {
         q: 'How do I find inverse sine, cosine or tangent?',
-        a: 'Tap 2nd and the sin, cos and tan keys become sin⁻¹, cos⁻¹ and tan⁻¹. For example tan⁻¹(1) = 45 in degrees.',
+        a: 
+          'Tap 2nd and the sin, cos and tan keys become sin⁻¹, cos⁻¹ and tan⁻¹. For example tan⁻¹(1) = 45 in degrees. The answer follows the current angle mode, so check whether the keypad shows deg or rad.',
       },
       ...COMMON_FAQ,
     ],
@@ -212,11 +219,13 @@ export const PAGES: PageSeo[] = [
     faq: [
       {
         q: 'How do I calculate a percentage of a number?',
-        a: 'Type the percentage, the % key, × and the number. For example 20% × 80 = 16.',
+        a: 
+          'Type the percentage, the % key, × and the number: 20% × 80 = 16. The % key divides by 100, so you can also read 20% × 80 as 0.2 × 80 and get the same answer.',
       },
       {
         q: 'How do I work out a discount?',
-        a: 'Subtract the percentage of the price from the price: for 25% off 800, type 800 − 800 × 25% = 600.',
+        a: 
+          'Subtract the percentage of the price from the price: for 25% off 800, type 800 − 800 × 25% and the answer is 600. To add a tax or tip instead, use + in place of −.',
       },
       {
         q: 'Does the calculator follow the order of operations?',
@@ -263,7 +272,8 @@ export const PAGES: PageSeo[] = [
       },
       {
         q: 'How do I find the determinant of a matrix?',
-        a: 'Enter a square matrix as A and type det(A). For example det([[4, 7], [2, 6]]) = 4·6 − 7·2 = 10.',
+        a: 
+          'Enter a square matrix as A and type det(A). For a 2×2 matrix the determinant is ad − bc, so det([[4, 7], [2, 6]]) = 4·6 − 7·2 = 10. A determinant of 0 means the matrix has no inverse.',
       },
       {
         q: 'How do I solve a system of equations with matrices?',
@@ -475,6 +485,30 @@ const crumbsHtml = (p: SitePage): string => {
 
 const NOTE = `<p class="seo-note">${SITE_NAME} is an independent project and is not affiliated with Desmos, Texas Instruments or Casio.</p>`;
 
+/**
+ * The facts the structured data states, written out for people to read too.
+ * Search engines and AI assistants weight what is visible on the page far more
+ * than the same values hidden in JSON-LD, so both say the same thing.
+ */
+function glanceHtml(p: SitePage): string {
+  const guide = isGuide(p);
+  const kind = guide && p.group === 'site' ? 'Page' : guide ? 'Interactive guide with a calculator' : 'Online calculator';
+  const rows: [string, string][] = [
+    ['What it is', p.description],
+    ['Type', kind],
+  ];
+  if (!(guide && p.group === 'site')) rows.push(['Level', 'High school and college']);
+  rows.push(
+    ['Price', 'Free, with no account or sign-up'],
+    ['Works offline', 'Yes, after the first visit; installs as an app'],
+    ['Made by', `${CREATOR.name} (${CREATOR.email})`],
+    ['Last updated', new Date(`${pageUpdated(p)}T00:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' })],
+  );
+  return `<section><h2>At a glance</h2><table><tbody>${rows
+    .map(([k, v]) => `<tr><th scope="row">${esc(k)}</th><td>${esc(v)}</td></tr>`)
+    .join('')}</tbody></table></section>`;
+}
+
 /** Visible, crawlable article shown below the calculator. */
 export function contentHtml(p: SitePage): string {
   if (isGuide(p)) {
@@ -494,6 +528,7 @@ export function contentHtml(p: SitePage): string {
       ? `<figure class="seo-figure"><img src="${figurePath(p)}" alt="${esc(p.figure.alt)}" width="640" height="400" loading="lazy" decoding="async"><figcaption>${esc(p.figure.caption)}</figcaption></figure>`
       : ''
   }
+  ${glanceHtml(p)}
   ${list.length ? `<section><h2>All graphs</h2>${linkList(list)}</section>` : ''}
   ${facts}
   ${
@@ -537,6 +572,7 @@ export function contentHtml(p: SitePage): string {
   ${crumbsHtml(p)}
   <h1>${esc(p.h1)}</h1>
   <p class="seo-lead">${esc(p.lead)}</p>
+  ${glanceHtml(p)}
   <section>
     <h2>How to use the ${esc(p.label.toLowerCase())}</h2>
     <ol>${p.steps.map((s) => `<li>${esc(s)}</li>`).join('')}</ol>

@@ -151,21 +151,25 @@ function googleAnalytics(): Plugin {
 
       gtag('config', '${GA_ID}');
 
-      // Fetch gtag.js right after the first paint: it never delays what the
-      // visitor sees, but even short visits are counted (waiting for idle time
-      // missed visitors who left within a few seconds).
+      // gtag.js costs about a second of main-thread time, which Core Web Vitals
+      // count against the page, so it waits until the app is interactive. The
+      // visit is still counted: it loads on the visitor's first interaction, or
+      // when the browser goes idle, or after 1.5s, whichever comes first.
       (function () {
         var done = false;
         function load() {
           if (done) return;
           done = true;
+          for (var i = 0; i < EVENTS.length; i++) removeEventListener(EVENTS[i], load);
           var s = document.createElement('script');
           s.async = true;
           s.src = 'https://www.googletagmanager.com/gtag/js?id=${GA_ID}';
           document.head.appendChild(s);
         }
-        requestAnimationFrame(function () { setTimeout(load, 0); });
-        setTimeout(load, 800);
+        var EVENTS = ['pointerdown', 'keydown', 'touchstart', 'scroll'];
+        for (var i = 0; i < EVENTS.length; i++) addEventListener(EVENTS[i], load, { once: true, passive: true });
+        if (window.requestIdleCallback) requestIdleCallback(load, { timeout: 1500 });
+        else setTimeout(load, 1500);
       })();
     </script>`,
         ),
@@ -213,8 +217,17 @@ function paintFirst(): Plugin {
 }
 
 export default defineConfig({
-  // Published source maps: only downloaded by developer tools, help debugging.
-  build: { sourcemap: true },
+  build: {
+    // Published source maps: only downloaded by developer tools, help debugging.
+    sourcemap: true,
+    rollupOptions: {
+      output: {
+        // MathLive is most of the JavaScript. Its own chunk downloads in
+        // parallel with the app's and is cached across releases of our code.
+        manualChunks: (id) => (id.includes('node_modules/mathlive') ? 'mathlive' : undefined),
+      },
+    },
+  },
   plugins: [
     googleAnalytics(),
     paintFirst(),
