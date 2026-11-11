@@ -22,6 +22,7 @@ Every calculator has an on-screen keypad and one-click examples you can edit.
 ## Features
 
 - **No account.** Graphs save in your browser ("My graphs"), export and import as JSON, and share as a link that carries the whole graph.
+- **Save as image.** One tap downloads the graph as a PNG (or opens the share sheet on a phone), with a small `tryplotline.xyz` credit in the corner.
 - **Works offline.** Plotline is a progressive web app: install it from Chrome, Edge or Safari on a phone or computer.
 - **Guides.** 24 pages explain common graphs and matrix operations, from [the sine graph](https://tryplotline.xyz/graphs/sine) to [RREF](https://tryplotline.xyz/rref-calculator). Each one opens the calculator with its example already loaded. Browse them in the [graph library](https://tryplotline.xyz/graphs).
 - **Free.** No ads, no paid tier, nothing behind a login.

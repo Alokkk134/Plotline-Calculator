@@ -43,7 +43,10 @@ const ICON_PLUS = icon('<path d="M12 5v14M5 12h14"/>');
 const ICON_MINUS = icon('<path d="M5 12h14"/>');
 /** Crosshair: "reset view" back to the origin. */
 const ICON_RESET = icon('<circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>');
-const LABEL_FONT = "'Plus Jakarta Sans Variable', 'Plus Jakarta Sans', -apple-system, 'Segoe UI', Roboto, Arial, sans-serif";
+/** Down arrow into a tray: "save as image". */
+const ICON_SAVE = icon('<path d="M12 4v11M7 11l5 5 5-5M5 20h14"/>');
+const CREDIT = 'tryplotline.xyz';
+const LABEL_FONT ="'Plus Jakarta Sans Variable', 'Plus Jakarta Sans', -apple-system, 'Segoe UI', Roboto, Arial, sans-serif";
 
 export class GraphView {
   private readonly canvas = document.createElement('canvas');
@@ -95,6 +98,7 @@ export class GraphView {
     mk('Zoom in', 'Zoom in', ICON_PLUS, () => this.zoomCenter(1.4));
     mk('Zoom out', 'Zoom out', ICON_MINUS, () => this.zoomCenter(1 / 1.4));
     mk('Reset view', 'Reset view: back to the origin at the default zoom', ICON_RESET, () => this.resetViewport());
+    mk('Save as image', 'Save the graph as an image (PNG)', ICON_SAVE, () => void this.saveImage());
     host.append(this.canvas, this.overlay, this.buttons);
     // Axis labels use the brand web font; redraw once it has loaded.
     document.fonts?.ready.then(() => this.invalidate());
@@ -191,6 +195,88 @@ export class GraphView {
     } catch {
       return undefined;
     }
+  }
+
+  /** PNG of the graph as drawn now (without the trace marker), with a small credit in the corner. */
+  exportImage(): Promise<Blob | null> {
+    if (!this.sized) return Promise.resolve(null);
+    // Always export at full quality, even if called in the middle of a drag, and
+    // at least twice the CSS size so the image stays sharp when it is shared.
+    this.interacting = false;
+    const s = Math.max(2, this.dpr);
+    const out = document.createElement('canvas');
+    out.width = Math.round(this.w * s);
+    out.height = Math.round(this.h * s);
+    const g = out.getContext('2d');
+    if (!g) return Promise.resolve(null);
+    const { width: keepW, height: keepH } = this.canvas;
+    const keepDpr = this.dpr;
+    try {
+      // Draw the graph once at the export scale, then put the screen canvas back
+      // the way it was. All of it happens before the browser paints, so nothing flickers.
+      this.dpr = s;
+      this.canvas.width = out.width;
+      this.canvas.height = out.height;
+      this.drawMain();
+      g.drawImage(this.canvas, 0, 0);
+    } finally {
+      this.dpr = keepDpr;
+      this.canvas.width = keepW;
+      this.canvas.height = keepH;
+      this.dirty = false;
+      this.drawMain();
+    }
+
+    const accent = getComputedStyle(this.host).getPropertyValue('--accent-strong').trim() || '#4a3fd0';
+    g.font = `700 ${12.5 * s}px ${LABEL_FONT}`;
+    g.textBaseline = 'middle';
+    g.textAlign = 'left';
+    const padX = 10 * s, boxH = 26 * s, r = 8 * s;
+    const boxW = g.measureText(CREDIT).width + padX * 2;
+    const x = 12 * s, y = out.height - boxH - 12 * s;
+    g.beginPath();
+    g.moveTo(x + r, y);
+    g.arcTo(x + boxW, y, x + boxW, y + boxH, r);
+    g.arcTo(x + boxW, y + boxH, x, y + boxH, r);
+    g.arcTo(x, y + boxH, x, y, r);
+    g.arcTo(x, y, x + boxW, y, r);
+    g.closePath();
+    g.fillStyle = this.colors.bg;
+    g.globalAlpha = 0.92;
+    g.fill();
+    g.globalAlpha = 1;
+    g.lineWidth = s;
+    g.strokeStyle = this.colors.major;
+    g.stroke();
+    g.fillStyle = accent;
+    g.fillText(CREDIT, x + padX, y + boxH / 2 + s * 0.5);
+
+    return new Promise((resolve) => out.toBlob((b) => resolve(b), 'image/png'));
+  }
+
+  /** Share the image on phones that can (the share sheet), otherwise download it. */
+  private async saveImage(): Promise<void> {
+    const blob = await this.exportImage();
+    if (!blob) return;
+    const file = new File([blob], 'plotline-graph.png', { type: 'image/png' });
+    const touch = window.matchMedia?.('(pointer: coarse)').matches;
+    if (touch && navigator.canShare?.({ files: [file] })) {
+      try {
+        await navigator.share({ files: [file], title: 'Graph made with Plotline', url: location.origin });
+        return;
+      } catch (e) {
+        if ((e as DOMException).name === 'AbortError') return; // the user closed the share sheet
+        // Anything else: fall through to a normal download.
+      }
+    }
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = file.name;
+    document.body.append(a);
+    a.click();
+    a.remove();
+    window.setTimeout(() => URL.revokeObjectURL(url), 10_000);
   }
 
   destroy(): void {

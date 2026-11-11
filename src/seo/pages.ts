@@ -86,7 +86,7 @@ export const PAGES: PageSeo[] = [
     // Keyword first like every other page; a search for "plotline" still
     // matches through the brand at the end and the WebSite structured data.
     title: 'Free Online Graphing Calculator | Plotline',
-    updated: '2026-11-01',
+    updated: '2026-11-11',
     description:
       'Graph functions, circles, inequalities, polar and parametric equations instantly. Free online graphing calculator with sliders and examples. No sign-up.',
     h1: 'Free Online Graphing Calculator',
@@ -99,7 +99,7 @@ export const PAGES: PageSeo[] = [
       'Polar (r = 3 sin 4θ) and parametric curves',
       'Sliders for variables, with play/animate',
       'Trace points, pan and zoom, reset view',
-      'Save graphs and share them with a link',
+      'Save graphs, share them with a link, or download one as an image',
     ],
     steps: [
       'Type an equation in the first row, for example y = 2x + 1. The graph appears as you type.',
